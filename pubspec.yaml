@@ -1,0 +1,89 @@
+name: bailey
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.4 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_smart_dialog: ^4.9.7+8
+  flutter_svg: ^2.0.10+1
+  http: ^1.2.0
+  shared_preferences: ^2.2.3
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+  fonts:
+    - family: HelveticaNowDisplay
+      fonts:
+        - asset: fonts/HelveticaNowDisplay-Hairline.ttf
+          weight: 100
+        - asset: fonts/HelveticaNowDisplay-HairlineI.ttf
+          weight: 100
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Thin.ttf
+          weight: 200
+        - asset: fonts/HelveticaNowDisplay-ThinIta.ttf
+          weight: 200
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-ExtLt.ttf
+          weight: 300
+        - asset: fonts/HelveticaNowDisplay-ExtLtIta.ttf
+          weight: 300
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Light.ttf
+          weight: 300
+        - asset: fonts/HelveticaNowDisplay-LightIta.ttf
+          weight: 300
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Regular.ttf
+          weight: 400
+        - asset: fonts/HelveticaNowDisplay-RegIta.ttf
+          weight: 400
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Medium.ttf
+          weight: 500
+        - asset: fonts/HelveticaNowDisplay-MedIta.ttf
+          weight: 500
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Bold.ttf
+          weight: 700
+        - asset: fonts/HelveticaNowDisplay-BoldIta.ttf
+          weight: 700
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-ExtraBold.ttf
+          weight: 800
+        - asset: fonts/HelveticaNowDisplay-ExtBdIta.ttf
+          weight: 800
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-ExtBlk.ttf
+          weight: 900
+        - asset: fonts/HelveticaNowDisplay-ExtBlkIta.ttf
+          weight: 900
+          style: italic
+        - asset: fonts/HelveticaNowDisplay-Black.ttf
+          weight: 900
+        - asset: fonts/HelveticaNowDisplay-BlackIta.ttf
+          weight: 900
+          style: italic
+  
