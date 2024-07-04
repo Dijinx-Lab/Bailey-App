@@ -30,10 +30,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     IconButton(
@@ -50,12 +50,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 40,
                     )
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 AnimatedContainer(
                   duration: Durations.medium1,
                   width: MediaQuery.of(context).viewInsets.bottom > 0
@@ -65,21 +65,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     'assets/images/changepass_image.png',
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Text(
                   'Change your password',
                   style: TypeStyle.h1,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Text(
                   'Please enter your new passowrd to reset it',
                   style: TypeStyle.body,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 MTextField(
@@ -115,7 +115,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                   ),
                 ),
-                Spacer(),
+                const Spacer(),
                 SizedBox(
                   height: 50,
                   width: double.infinity,

@@ -1,5 +1,4 @@
 import 'package:bailey/keys/routes/route_keys.dart';
-import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/misc.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
@@ -29,10 +28,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     IconButton(
@@ -49,12 +48,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 40,
                     )
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 AnimatedContainer(
                   duration: Durations.medium1,
                   width: MediaQuery.of(context).viewInsets.bottom > 0
@@ -64,21 +63,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     'assets/images/forgotpass_image.png',
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 Text(
                   'Forgot Password',
                   style: TypeStyle.h1,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
                 Text(
                   'No worries, we will send you reset code',
                   style: TypeStyle.body,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
                 MTextField(
@@ -87,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   icon: 'ic_mail',
                   keyboardType: TextInputType.emailAddress,
                 ),
-                Spacer(),
+                const Spacer(),
                 SizedBox(
                   height: 50,
                   width: double.infinity,
