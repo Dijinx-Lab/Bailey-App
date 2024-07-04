@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  ColorStyle.setSystemStylePref();
   runApp(const MyApp());
 }
 
@@ -13,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Bailey and Bailey',
+      title: 'Bailey  Bailey',
       debugShowCheckedModeBanner: false,
       navigatorObservers: [FlutterSmartDialog.observer],
       builder: FlutterSmartDialog.init(),

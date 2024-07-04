@@ -5,8 +5,11 @@ import 'package:flutter/services.dart';
 class ColorStyle {
   static void setSystemStylePref() {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      systemNavigationBarColor: ColorStyle.whiteColor,
+      systemStatusBarContrastEnforced: true,
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
     ));
+
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
@@ -44,12 +47,13 @@ class ColorStyle {
   static ThemeData appTheme = ThemeData(
     useMaterial3: true,
     primaryColor: ColorStyle.primaryColor,
-    fontFamily: "Rubik",
+    fontFamily: "HelveticaNowDisplay",
     canvasColor: ColorStyle.backgroundColor,
     colorScheme: ColorStyle.appScheme,
     primarySwatch: ColorStyle.primaryMaterialColor,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     dialogBackgroundColor: ColorStyle.whiteColor,
+    appBarTheme: const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
     checkboxTheme: CheckboxThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4.0),
@@ -62,7 +66,7 @@ class ColorStyle {
   );
 
   static const primaryColor = Color(0xFFFFFFFF);
-  static const backgroundColor = Color(0xFF000000);
+  static const backgroundColor = Color(0xFF111111);
   static const borderColor = Color(0xFF262626);
 
   static const primaryTextColor = Color(0xFFFFFFFF);

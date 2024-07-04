@@ -43,7 +43,7 @@ class MTextField extends StatelessWidget {
       this.maxLength,
       this.maxLines = 1,
       this.inputFormatters,
-      this.fieldColor = ColorStyle.blackColor,
+      this.fieldColor = ColorStyle.backgroundColor,
       this.textColor = ColorStyle.whiteColor,
       this.verticalFieldPadding = 15,
       this.cursorColor = ColorStyle.whiteColor,

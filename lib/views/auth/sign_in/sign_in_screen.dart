@@ -131,7 +131,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         child: MRoundedButton(
                           'Login',
-                          () => (),
+                          () {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                baseRoute, (route) => false);
+                          },
                         ),
                       ),
                       const SizedBox(height: 20),

@@ -20,7 +20,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   bool _showPassword = false;
-  
 
   @override
   void initState() {
@@ -125,7 +124,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         width: double.infinity,
                         child: MRoundedButton(
                           'Create an account',
-                          () => (),
+                          () {
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                                baseRoute, (route) => false);
+                          },
                         ),
                       ),
                       const SizedBox(height: 20),

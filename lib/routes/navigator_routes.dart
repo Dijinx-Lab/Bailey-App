@@ -1,16 +1,21 @@
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
+import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
 import 'package:bailey/views/auth/change_password/change_password_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
+import 'package:bailey/views/base/base_screen.dart';
+import 'package:bailey/views/fingerprint/scan_prints/scan_prints_screen.dart';
 import 'package:bailey/views/intro/onboarding/onboarding_screen.dart';
 import 'package:bailey/views/auth/sign_in/sign_in_screen.dart';
 import 'package:bailey/views/auth/sign_up/sign_up_screen.dart';
 import 'package:bailey/views/intro/splash/splash_screen.dart';
+import 'package:bailey/views/fingerprint/pick_finger/pick_finger_screen.dart';
+import 'package:bailey/views/fingerprint/pick_hand/pick_hand_screen.dart';
 import 'package:flutter/material.dart';
 
 class NavigatorRoutes {
   static List<String> upTransitionRoutes = [];
   static List<String> fadeTransitionRoutes = [onboardingRoute];
-
   static Route<dynamic> allRoutes(RouteSettings settings) {
     Widget page = const SplashScreen();
 
@@ -27,6 +32,18 @@ class NavigatorRoutes {
         page = const ForgotPasswordScreen();
       case changePasswordRoute:
         page = const ChangePasswordScreen();
+      case baseRoute:
+        page = const BaseScreen();
+      case pickHandRoute:
+        page = const PickHandScreen();
+      case pickFingerRoute:
+        page = PickFingerScreen(
+          arguments: settings.arguments as PickFingerArgs,
+        );
+      case scanPrintsRoute:
+        page = ScanPrintsScreen(
+          arguments: settings.arguments as ScanPrintsArgs,
+        );
     }
 
     if (upTransitionRoutes.contains(settings.name)) {
