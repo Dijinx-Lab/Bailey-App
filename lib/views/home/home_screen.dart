@@ -1,4 +1,5 @@
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
@@ -91,8 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 30),
         _buildTileWidget('Fingerprint', 'ic_finger', () async {
           String? source = await _openSourceSheet();
-          if (source == "camera" && mounted) {
-            Navigator.of(context).pushNamed(pickHandRoute);
+          if (source != null && mounted) {
+            Navigator.of(context).pushNamed(
+              pickHandRoute,
+              arguments: PickHandArgs(previousHandScanned: false, mode: source),
+            );
           }
         }),
         const SizedBox(height: 20),

@@ -1,6 +1,7 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
+import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
 import 'package:bailey/views/auth/change_password/change_password_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
@@ -38,7 +39,9 @@ class NavigatorRoutes {
       case baseRoute:
         page = const BaseScreen();
       case pickHandRoute:
-        page = const PickHandScreen();
+        page = PickHandScreen(
+          arguments: settings.arguments as PickHandArgs,
+        );
       case pickFingerRoute:
         page = PickFingerScreen(
           arguments: settings.arguments as PickFingerArgs,

@@ -1,12 +1,14 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
+import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class PickHandScreen extends StatefulWidget {
-  const PickHandScreen({super.key});
+  final PickHandArgs arguments;
+  const PickHandScreen({super.key, required this.arguments});
 
   @override
   State<PickHandScreen> createState() => _PickHandScreenState();
@@ -32,7 +34,9 @@ class _PickHandScreenState extends State<PickHandScreen> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        'Finger Print Scanner',
+                        widget.arguments.mode == 'gallery'
+                            ? 'Upload Finger Prints'
+                            : 'Finger Print Scanner',
                         style: TypeStyle.h2,
                       ),
                     ),
@@ -82,7 +86,10 @@ class _PickHandScreenState extends State<PickHandScreen> {
                       SvgPicture.asset('assets/icons/ic_hands.svg'),
                       const SizedBox(height: 10),
                       Text(
-                        'Select which hand you scanning',
+                        widget.arguments.mode == 'gallery'
+                            ? 'Select which hand images you will upload'
+                            : 'Select which hand you scanning',
+                        textAlign: TextAlign.center,
                         style: TypeStyle.h1,
                       ),
                       const SizedBox(height: 20),
@@ -90,7 +97,9 @@ class _PickHandScreenState extends State<PickHandScreen> {
                         Navigator.of(context).pushNamed(
                           pickFingerRoute,
                           arguments: PickFingerArgs(
-                              previousHandScanned: false, currentHand: 'Left'),
+                              previousHandScanned: false,
+                              currentHand: 'Left',
+                              mode: widget.arguments.mode),
                         );
                       }, true),
                       const SizedBox(height: 20),
@@ -98,7 +107,9 @@ class _PickHandScreenState extends State<PickHandScreen> {
                         Navigator.of(context).pushNamed(
                           pickFingerRoute,
                           arguments: PickFingerArgs(
-                              previousHandScanned: false, currentHand: 'Right'),
+                              previousHandScanned: false,
+                              currentHand: 'Right',
+                              mode: widget.arguments.mode),
                         );
                       }, false)
                     ],

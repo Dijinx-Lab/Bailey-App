@@ -22,7 +22,7 @@ class MediaSourceSheet extends StatelessWidget {
             const SizedBox(height: 20),
             Center(
               child: SizedBox(
-                width: (MediaQuery.of(context).size.width / 2),
+                width: (MediaQuery.of(context).size.width / 2 - 50),
                 child: Image.asset(
                   'assets/images/print_image.png',
                 ),

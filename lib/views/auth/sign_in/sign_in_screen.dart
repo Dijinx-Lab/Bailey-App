@@ -1,7 +1,7 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
-import 'package:bailey/utility/misc.dart';
+import 'package:bailey/utility/misc/misc.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:bailey/widgets/inputs/text_field/m_text_field.dart';
 import 'package:flutter/material.dart';

@@ -26,6 +26,9 @@
 		<true />
 		<key>NSCameraUsageDescription</key>
 		<string>To allow users to capture their pictures, handwritings and fingerprints</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>To allow users to upload their pictures, handwritings and fingerprints from their
+			gallery</string>
 		<key>UILaunchStoryboardName</key>
 		<string>LaunchScreen</string>
 		<key>UIMainStoryboardFile</key>
