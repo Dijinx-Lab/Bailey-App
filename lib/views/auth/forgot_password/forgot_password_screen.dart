@@ -1,4 +1,5 @@
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/args/change_password/change_password_args.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/misc.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
@@ -92,7 +93,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   width: double.infinity,
                   child: MRoundedButton(
                     'Continue',
-                    () => Navigator.of(context).pushNamed(changePasswordRoute),
+                    () => Navigator.of(context).pushNamed(
+                      changePasswordRoute,
+                      arguments: ChangePasswordArgs(action: 'forgot_pass'),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),

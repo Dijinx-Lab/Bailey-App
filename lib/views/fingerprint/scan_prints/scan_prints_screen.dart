@@ -77,6 +77,13 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                   child: Column(
                     children: [
                       const SizedBox(height: 20),
+                      Center(
+                        child: Text(
+                          fingerNames[_currentIndex],
+                          style: TypeStyle.h1,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
@@ -132,29 +139,33 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Column(
+                        child: Row(
                           children: [
-                            SizedBox(
-                              height: 50,
-                              width: double.infinity,
-                              child: MRoundedButton(
-                                'Scan',
-                                () {},
+                            Expanded(
+                              child: SizedBox(
+                                height: 50,
+                                width: double.infinity,
+                                child: MRoundedButton(
+                                  'Amputated',
+                                  () {},
+                                  borderColor: ColorStyle.whiteColor,
+                                  textColor: ColorStyle.whiteColor,
+                                  buttonBackgroundColor:
+                                      ColorStyle.backgroundColor,
+                                ),
                               ),
                             ),
                             const SizedBox(
-                              height: 10,
+                              width: 10,
                             ),
-                            SizedBox(
-                              height: 50,
-                              width: double.infinity,
-                              child: MRoundedButton(
-                                'Amputated',
-                                () {},
-                                borderColor: ColorStyle.whiteColor,
-                                textColor: ColorStyle.whiteColor,
-                                buttonBackgroundColor:
-                                    ColorStyle.backgroundColor,
+                            Expanded(
+                              child: SizedBox(
+                                height: 50,
+                                width: double.infinity,
+                                child: MRoundedButton(
+                                  'Scan',
+                                  () {},
+                                ),
                               ),
                             ),
                           ],

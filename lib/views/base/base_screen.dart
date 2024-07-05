@@ -4,7 +4,6 @@ import 'package:bailey/views/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_svg/svg.dart';
-import 'package:lazy_load_indexed_stack/lazy_load_indexed_stack.dart';
 
 class BaseScreen extends StatefulWidget {
   const BaseScreen({super.key});
@@ -16,6 +15,7 @@ class BaseScreen extends StatefulWidget {
 class _BaseScreenState extends State<BaseScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _index = 0;
+  late PageController _controller;
 
   final List<Widget> _widgets = const [
     HomeScreen(),
@@ -24,6 +24,7 @@ class _BaseScreenState extends State<BaseScreen> {
 
   @override
   void initState() {
+    _controller = PageController(initialPage: _index);
     super.initState();
   }
 
@@ -32,8 +33,14 @@ class _BaseScreenState extends State<BaseScreen> {
     return Scaffold(
       key: _scaffoldKey,
       body: SafeArea(
-        child: LazyLoadIndexedStack(index: _index, children: _widgets),
-      ),
+          child: PageView.builder(
+        controller: _controller,
+        itemCount: _widgets.length,
+        physics: const NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index) {
+          return _widgets[index];
+        },
+      )),
       bottomNavigationBar: Theme(
         data: Theme.of(context).copyWith(
           splashColor: Colors.transparent, // Removes the ripple effect
@@ -48,7 +55,7 @@ class _BaseScreenState extends State<BaseScreen> {
                 decoration: BoxDecoration(
                   color: _index == 0
                       ? ColorStyle.whiteColor
-                      : ColorStyle.blackColor,
+                      : ColorStyle.backgroundColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: ColorStyle.secondaryTextColor),
                 ),
@@ -87,9 +94,10 @@ class _BaseScreenState extends State<BaseScreen> {
           unselectedFontSize: 0,
           selectedFontSize: 0,
           onTap: (value) {
-            setState(() {
-              _index = value;
-            });
+            _controller.animateToPage(value,
+                duration: Durations.medium1, curve: Curves.decelerate);
+            _index = value;
+            setState(() {});
           },
           backgroundColor: ColorStyle.backgroundColor,
           selectedItemColor: ColorStyle.primaryColor,

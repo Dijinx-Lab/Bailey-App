@@ -1,6 +1,7 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
+import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -12,6 +13,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Future<String?> _openSourceSheet() async {
+    String? source = await showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(18.0),
+        ),
+      ),
+      backgroundColor: ColorStyle.backgroundColor,
+      isScrollControlled: true,
+      builder: (BuildContext context) => const MediaSourceSheet(),
+    );
+    return source;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,13 +89,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 30),
-        _buildTileWidget('Hand Writing', 'ic_sign', () {
-          Navigator.of(context).pushNamed(pickHandRoute);
+        _buildTileWidget('Fingerprint', 'ic_finger', () async {
+          String? source = await _openSourceSheet();
+          if (source == "camera" && mounted) {
+            Navigator.of(context).pushNamed(pickHandRoute);
+          }
         }),
         const SizedBox(height: 20),
-        _buildTileWidget('Photo', 'ic_image', () {}),
+        _buildTileWidget('Hand Writing', 'ic_sign', () {}),
         const SizedBox(height: 20),
-        _buildTileWidget('Print', 'ic_print', () {}),
+        _buildTileWidget('Photo', 'ic_image', () {}),
       ],
     );
   }
@@ -94,7 +113,10 @@ class _HomeScreenState extends State<HomeScreen> {
           border: Border.all(color: ColorStyle.borderColor),
         ),
         child: Row(children: [
-          SvgPicture.asset('assets/icons/$icon.svg'),
+          SvgPicture.asset(
+            'assets/icons/$icon.svg',
+            height: 25,
+          ),
           const SizedBox(width: 20),
           Expanded(child: Text(title, style: TypeStyle.h3)),
           Transform.flip(

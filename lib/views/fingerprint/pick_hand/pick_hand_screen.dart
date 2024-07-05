@@ -122,9 +122,10 @@ class _PickHandScreenState extends State<PickHandScreen> {
           border: Border.all(color: ColorStyle.borderColor),
         ),
         child: Row(children: [
-          SvgPicture.asset(filled
-              ? 'assets/icons/ic_radio_filled.svg'
-              : 'assets/icons/ic_radio.svg'),
+          SvgPicture.asset(
+            filled ? 'assets/icons/ic_done.svg' : 'assets/icons/ic_radio.svg',
+            width: 18,
+          ),
           const SizedBox(width: 10),
           SvgPicture.asset('assets/icons/$icon.svg'),
           const SizedBox(width: 20),
