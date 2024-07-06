@@ -95,7 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
           if (source != null && mounted) {
             Navigator.of(context).pushNamed(
               pickHandRoute,
-              arguments: PickHandArgs(previousHandScanned: false, mode: source),
+              arguments:
+                  PickHandArgs(handsScanned: [false, false], mode: source),
             );
           }
         }),

@@ -1,4 +1,4 @@
-package com.dijinx.bailey.bailey
+package com.dijinx.bailey
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -10,3 +10,4 @@ const String homeRoute = '/home';
 const String pickHandRoute = '/pick-hand';
 const String pickFingerRoute = '/pick-finger';
 const String scanPrintsRoute = '/scan-prints';
+const String successRoute = '/success';

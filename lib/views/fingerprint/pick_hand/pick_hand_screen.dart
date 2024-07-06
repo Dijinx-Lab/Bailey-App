@@ -58,7 +58,7 @@ class _PickHandScreenState extends State<PickHandScreen> {
                   child: Column(
                     children: [
                       Text(
-                        'Step 1',
+                        'Step ${widget.arguments.handsScanned.where((element) => element == true).length + 1}',
                         style: TypeStyle.h2,
                       ),
                       const SizedBox(height: 20),
@@ -77,8 +77,12 @@ class _PickHandScreenState extends State<PickHandScreen> {
                             width: 50,
                             height: 5,
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: ColorStyle.borderColor),
+                              borderRadius: BorderRadius.circular(12),
+                              color: widget.arguments.handsScanned
+                                      .any((element) => element == true)
+                                  ? ColorStyle.whiteColor
+                                  : ColorStyle.borderColor,
+                            ),
                           )
                         ],
                       ),
@@ -94,24 +98,30 @@ class _PickHandScreenState extends State<PickHandScreen> {
                       ),
                       const SizedBox(height: 20),
                       _buildTileWidget('Left Hand', 'ic_left_hand', () {
-                        Navigator.of(context).pushNamed(
-                          pickFingerRoute,
-                          arguments: PickFingerArgs(
-                              previousHandScanned: false,
+                        if (!widget.arguments.handsScanned.first) {
+                          Navigator.of(context).pushNamed(
+                            pickFingerRoute,
+                            arguments: PickFingerArgs(
+                              handsScanned: widget.arguments.handsScanned,
                               currentHand: 'Left',
-                              mode: widget.arguments.mode),
-                        );
-                      }, true),
+                              mode: widget.arguments.mode,
+                            ),
+                          );
+                        }
+                      }, widget.arguments.handsScanned.first),
                       const SizedBox(height: 20),
                       _buildTileWidget('Right Hand', 'ic_right_hand', () {
-                        Navigator.of(context).pushNamed(
-                          pickFingerRoute,
-                          arguments: PickFingerArgs(
-                              previousHandScanned: false,
+                        if (!widget.arguments.handsScanned.last) {
+                          Navigator.of(context).pushNamed(
+                            pickFingerRoute,
+                            arguments: PickFingerArgs(
+                              handsScanned: widget.arguments.handsScanned,
                               currentHand: 'Right',
-                              mode: widget.arguments.mode),
-                        );
-                      }, false)
+                              mode: widget.arguments.mode,
+                            ),
+                          );
+                        }
+                      }, widget.arguments.handsScanned.last)
                     ],
                   ),
                 ),

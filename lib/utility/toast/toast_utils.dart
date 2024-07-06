@@ -58,7 +58,7 @@ class ToastUtils {
                       : type == "fail"
                           ? Icons.error_outline
                           : Icons.info_outline,
-                  color: ColorStyle.whiteColor,
+                  color: ColorStyle.blackColor,
                 )
               : const SizedBox(
                   width: 0,
@@ -77,7 +77,7 @@ class ToastUtils {
               contentText,
               textAlign: isCenteredText ? TextAlign.center : TextAlign.start,
               style: const TextStyle(
-                  color: ColorStyle.whiteColor,
+                  color: ColorStyle.blackColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w500),
             ),

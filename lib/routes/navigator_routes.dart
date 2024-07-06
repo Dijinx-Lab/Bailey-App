@@ -13,6 +13,7 @@ import 'package:bailey/views/auth/sign_up/sign_up_screen.dart';
 import 'package:bailey/views/intro/splash/splash_screen.dart';
 import 'package:bailey/views/fingerprint/pick_finger/pick_finger_screen.dart';
 import 'package:bailey/views/fingerprint/pick_hand/pick_hand_screen.dart';
+import 'package:bailey/views/success/successful_scan_screen.dart';
 import 'package:flutter/material.dart';
 
 class NavigatorRoutes {
@@ -50,6 +51,8 @@ class NavigatorRoutes {
         page = ScanPrintsScreen(
           arguments: settings.arguments as ScanPrintsArgs,
         );
+      case successRoute:
+        page = const SuccessfulScanScreen();
     }
 
     if (upTransitionRoutes.contains(settings.name)) {

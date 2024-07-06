@@ -1,6 +1,6 @@
 class PickHandArgs {
-  final bool previousHandScanned;
+  final List<bool> handsScanned;
   final String mode;
 
-  PickHandArgs({required this.previousHandScanned, required this.mode});
+  PickHandArgs({required this.handsScanned, required this.mode});
 }

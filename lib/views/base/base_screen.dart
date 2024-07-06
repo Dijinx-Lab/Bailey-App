@@ -51,6 +51,9 @@ class _BaseScreenState extends State<BaseScreen> {
             BottomNavigationBarItem(
               label: '',
               icon: Container(
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom == 0 ? 20 : 0,
+                ),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: _index == 0
@@ -70,6 +73,9 @@ class _BaseScreenState extends State<BaseScreen> {
             BottomNavigationBarItem(
               label: '',
               icon: Container(
+                margin: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom == 0 ? 20 : 0,
+                ),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: _index == 1

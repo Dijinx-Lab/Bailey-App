@@ -62,6 +62,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   () => Navigator.of(context).pushReplacementNamed(signinRoute),
                 ),
               ),
+              const SizedBox(
+                height: 20,
+              ),
             ],
           ),
         ),

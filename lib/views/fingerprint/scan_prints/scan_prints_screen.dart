@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image/image.dart' as img;
 
 class ScanPrintsScreen extends StatefulWidget {
   final ScanPrintsArgs arguments;
@@ -23,14 +27,62 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
   ];
 
   List<String?> printFiles = [];
+  int _currentIndex = 0;
 
-  final int _currentIndex = 0;
+  CameraController? _controller;
+  Future<void>? _initializeControllerFuture;
+  bool isCaptured = false;
 
   @override
   void initState() {
     printFiles = widget.arguments.scans;
-
+    int index = printFiles.indexWhere((element) => element == null);
+    if (index == -1) {
+      Navigator.of(context).pop();
+    } else {
+      _currentIndex = index;
+    }
+    _initializeCamera();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.last;
+    _controller = CameraController(
+      firstCamera,
+      ResolutionPreset.max,
+      enableAudio: false,
+    );
+    _initializeControllerFuture = _controller!.initialize();
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  Future<void> _capturePicture() async {
+    try {
+      await _initializeControllerFuture;
+      final image = await _controller!.takePicture();
+      final File imageFile = File(image.path);
+      final img.Image originalImage =
+          img.decodeImage(imageFile.readAsBytesSync())!;
+      final img.Image greyscaleImage = img.grayscale(originalImage);
+      final img.Image highContrastImage =
+          img.adjustColor(greyscaleImage, contrast: 3);
+      imageFile.writeAsBytesSync(img.encodeJpg(highContrastImage));
+      printFiles[_currentIndex] = image.path;
+      isCaptured = true;
+      setState(() {});
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -45,7 +97,7 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Navigator.of(context).pop(printFiles),
                     visualDensity: VisualDensity.compact,
                     icon: SvgPicture.asset('assets/icons/ic_chevron_back.svg'),
                   ),
@@ -69,10 +121,7 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(
-                        color: printFiles[_currentIndex] == null
-                            ? ColorStyle.borderColor
-                            : ColorStyle.whiteColor),
+                    border: Border.all(color: ColorStyle.borderColor),
                   ),
                   child: Column(
                     children: [
@@ -94,7 +143,9 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 2),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
-                                color: ColorStyle.borderColor),
+                                color: printFiles[index] == null
+                                    ? ColorStyle.borderColor
+                                    : ColorStyle.whiteColor),
                           ),
                         ),
                       ),
@@ -124,10 +175,15 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                                     child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("Keep your hand steady",
+                                    Text(
+                                        isCaptured
+                                            ? "Successfully Scanned"
+                                            : "Keep your hand steady",
                                         style: TypeStyle.h3),
                                     Text(
-                                        "Try not to move camera while scanning",
+                                        isCaptured
+                                            ? "Move to other finger"
+                                            : "Try not to move camera while scanning",
                                         style: TypeStyle.label),
                                   ],
                                 )),
@@ -139,37 +195,68 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: SizedBox(
+                        child: isCaptured
+                            ? SizedBox(
                                 height: 50,
                                 width: double.infinity,
                                 child: MRoundedButton(
-                                  'Amputated',
-                                  () {},
-                                  borderColor: ColorStyle.whiteColor,
-                                  textColor: ColorStyle.whiteColor,
-                                  buttonBackgroundColor:
-                                      ColorStyle.backgroundColor,
+                                  'Continue',
+                                  () {
+                                    int index = printFiles.indexWhere(
+                                        (element) => element == null);
+                                    if (index != -1) {
+                                      _currentIndex++;
+                                      isCaptured = false;
+                                      setState(() {});
+                                    } else {
+                                      Navigator.of(context).pop(printFiles);
+                                    }
+                                  },
                                 ),
+                              )
+                            : Row(
+                                children: [
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50,
+                                      width: double.infinity,
+                                      child: MRoundedButton(
+                                        'Amputated',
+                                        () {
+                                          printFiles[_currentIndex] =
+                                              'amputated';
+                                          int index = printFiles.indexWhere(
+                                              (element) => element == null);
+                                          if (index != -1) {
+                                            _currentIndex++;
+                                            setState(() {});
+                                          } else {
+                                            Navigator.of(context)
+                                                .pop(printFiles);
+                                          }
+                                        },
+                                        borderColor: ColorStyle.whiteColor,
+                                        textColor: ColorStyle.whiteColor,
+                                        buttonBackgroundColor:
+                                            ColorStyle.backgroundColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: 50,
+                                      width: double.infinity,
+                                      child: MRoundedButton(
+                                        'Capture',
+                                        () => _capturePicture(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              child: SizedBox(
-                                height: 50,
-                                width: double.infinity,
-                                child: MRoundedButton(
-                                  'Scan',
-                                  () {},
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
@@ -186,10 +273,29 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
     return Container(
       width: double.maxFinite,
       margin: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: ColorStyle.whiteColor),
-      ),
+      decoration: isCaptured
+          ? null
+          : BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: ColorStyle.whiteColor),
+            ),
+      child: isCaptured
+          ? Image.file(
+              File(printFiles[_currentIndex]!),
+              fit: BoxFit.contain,
+            )
+          : FutureBuilder<void>(
+              future: _initializeControllerFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: CameraPreview(_controller!));
+                } else {
+                  return Container();
+                }
+              },
+            ),
     );
   }
 }
