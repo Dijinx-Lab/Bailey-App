@@ -24,6 +24,8 @@ dependencies:
   permission_handler: ^11.3.1
   camera: ^0.11.0+1
   image: ^4.2.0
+  cunning_document_scanner: ^1.2.3
+  flutter_masonry_view: ^0.0.2
 
 dev_dependencies:
   flutter_test:

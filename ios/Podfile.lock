@@ -1,4 +1,8 @@
 PODS:
+  - camera_avfoundation (0.0.1):
+    - Flutter
+  - cunning_document_scanner (1.0.0):
+    - Flutter
   - Flutter (1.0.0)
   - image_picker_ios (0.0.1):
     - Flutter
@@ -9,12 +13,18 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - cunning_document_scanner (from `.symlinks/plugins/cunning_document_scanner/ios`)
   - Flutter (from `Flutter`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
 
 EXTERNAL SOURCES:
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
+  cunning_document_scanner:
+    :path: ".symlinks/plugins/cunning_document_scanner/ios"
   Flutter:
     :path: Flutter
   image_picker_ios:
@@ -25,11 +35,13 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
 
 SPEC CHECKSUMS:
+  camera_avfoundation: 759172d1a77ae7be0de08fc104cfb79738b8a59e
+  cunning_document_scanner: 7cb9bd173f7cc7b11696dde98d01492187fc3a67
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   image_picker_ios: b545a5f16c0fa88e3ecbbce3ed4de45567a8ec18
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
 
-PODFILE CHECKSUM: b2d94c25c5726f10092295281aa2eacea7735e12
+PODFILE CHECKSUM: f9d7167b661452528b8f9a63b0d9331258780510
 
 COCOAPODS: 1.15.2

@@ -11,3 +11,6 @@ const String pickHandRoute = '/pick-hand';
 const String pickFingerRoute = '/pick-finger';
 const String scanPrintsRoute = '/scan-prints';
 const String successRoute = '/success';
+const String viewPrintsRoute = '/view-prints';
+const String photosRoute = '/photos';
+const String handwritingsRoute = '/handwritings';

@@ -67,8 +67,9 @@ class PickerUtil {
         if (context!.mounted) {
           ToastUtils.showCustomSnackbar(
               context: context,
-              contentText: "You can only choose a maximum of $maxCount items",
-              type: "fail");
+              contentText:
+                  "You can only choose a maximum of $maxCount items at a time",
+              type: "info");
         }
       }
     }

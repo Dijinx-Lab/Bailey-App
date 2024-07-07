@@ -155,13 +155,14 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                     bool granted = false;
                                     PermissionStatus permission =
                                         await Permission.camera.status;
-                                    print(permission);
+
                                     if (permission == PermissionStatus.denied ||
                                         permission ==
                                             PermissionStatus
                                                 .permanentlyDenied) {
                                       permission =
                                           await Permission.camera.request();
+                                      print(permission);
                                       if (permission !=
                                               PermissionStatus.denied &&
                                           permission !=

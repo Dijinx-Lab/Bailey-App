@@ -7,12 +7,15 @@ import 'package:bailey/views/auth/change_password/change_password_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
 import 'package:bailey/views/base/base_screen.dart';
 import 'package:bailey/views/fingerprint/scan_prints/scan_prints_screen.dart';
+import 'package:bailey/views/fingerprint/view_prints/view_prints_screen.dart';
+import 'package:bailey/views/handwriting/handwriting_screen.dart';
 import 'package:bailey/views/intro/onboarding/onboarding_screen.dart';
 import 'package:bailey/views/auth/sign_in/sign_in_screen.dart';
 import 'package:bailey/views/auth/sign_up/sign_up_screen.dart';
 import 'package:bailey/views/intro/splash/splash_screen.dart';
 import 'package:bailey/views/fingerprint/pick_finger/pick_finger_screen.dart';
 import 'package:bailey/views/fingerprint/pick_hand/pick_hand_screen.dart';
+import 'package:bailey/views/photo/photo_screen.dart';
 import 'package:bailey/views/success/successful_scan_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +56,12 @@ class NavigatorRoutes {
         );
       case successRoute:
         page = const SuccessfulScanScreen();
+      case viewPrintsRoute:
+        page = const ViewPrintsScreen();
+      case photosRoute:
+        page = const PhotoScreen();
+      case handwritingsRoute:
+        page = const HandwritingScreen();
     }
 
     if (upTransitionRoutes.contains(settings.name)) {

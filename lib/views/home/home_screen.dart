@@ -3,6 +3,7 @@ import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
+import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -14,6 +15,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool saved = false;
+
   Future<String?> _openSourceSheet() async {
     String? source = await showModalBottomSheet(
       context: context,
@@ -52,9 +55,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: Image.asset(
-                        'assets/icons/ic_logo_white.png',
-                        width: 60,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            saved = !saved;
+                          });
+                        },
+                        child: Image.asset(
+                          'assets/icons/ic_logo_white.png',
+                          width: 60,
+                        ),
                       ),
                     ),
                   ],
@@ -90,25 +100,54 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(height: 30),
-        _buildTileWidget('Fingerprint', 'ic_finger', () async {
-          String? source = await _openSourceSheet();
-          if (source != null && mounted) {
+        _buildTileWidget(
+          'Fingerprints',
+          'ic_finger',
+          saved,
+          () async {
+            if (saved) {
+              Navigator.of(context).pushNamed(
+                viewPrintsRoute,
+              );
+            } else {
+              String? source = await _openSourceSheet();
+              if (source != null && mounted) {
+                Navigator.of(context).pushNamed(
+                  pickHandRoute,
+                  arguments:
+                      PickHandArgs(handsScanned: [false, false], mode: source),
+                );
+              }
+            }
+          },
+        ),
+        const SizedBox(height: 20),
+        _buildTileWidget(
+          'Hand Writing',
+          'ic_sign',
+          saved,
+          () {
             Navigator.of(context).pushNamed(
-              pickHandRoute,
-              arguments:
-                  PickHandArgs(handsScanned: [false, false], mode: source),
+              handwritingsRoute,
             );
-          }
-        }),
+          },
+        ),
         const SizedBox(height: 20),
-        _buildTileWidget('Hand Writing', 'ic_sign', () {}),
-        const SizedBox(height: 20),
-        _buildTileWidget('Photo', 'ic_image', () {}),
+        _buildTileWidget(
+          'Photo',
+          'ic_image',
+          saved,
+          () {
+            Navigator.of(context).pushNamed(
+              photosRoute,
+            );
+          },
+        ),
       ],
     );
   }
 
-  _buildTileWidget(String title, String icon, Function onTap) {
+  _buildTileWidget(String title, String icon, bool available, Function onTap) {
     return GestureDetector(
       onTap: () => onTap(),
       child: Container(
@@ -124,9 +163,18 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(width: 20),
           Expanded(child: Text(title, style: TypeStyle.h3)),
-          Transform.flip(
-              flipX: true,
-              child: SvgPicture.asset('assets/icons/ic_chevron_back.svg')),
+          available
+              ? SizedBox(
+                  width: 80,
+                  height: 30,
+                  child: MRoundedButton(
+                    'View',
+                    () => onTap(),
+                    textSize: 12,
+                  ))
+              : Transform.flip(
+                  flipX: true,
+                  child: SvgPicture.asset('assets/icons/ic_chevron_back.svg')),
         ]),
       ),
     );
