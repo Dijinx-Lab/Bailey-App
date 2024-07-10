@@ -1,4 +1,3 @@
-
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
 import 'package:bailey/style/color/color_style.dart';
@@ -35,7 +34,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
 
   List<String?> prevLeftPrintFiles = [
     'assets/images/temp_prints.png',
-    'amputated',
+    'skip',
     'assets/images/temp_prints.png',
     'assets/images/temp_prints.png',
     'assets/images/temp_prints.png',
@@ -44,7 +43,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     'assets/images/temp_prints.png',
     'assets/images/temp_prints.png',
     'assets/images/temp_prints.png',
-    'amputated',
+    'skip',
     'assets/images/temp_prints.png',
   ];
 
@@ -268,11 +267,11 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     );
   }
 
-  bool _isAmputated(int index, bool leftHand) {
+  bool _isSkipped(int index, bool leftHand) {
     if (leftHand) {
-      return leftPrintFiles[index] == 'amputated';
+      return leftPrintFiles[index] == 'skip';
     } else {
-      return rightPrintFiles[index] == 'amputated';
+      return rightPrintFiles[index] == 'skip';
     }
   }
 
@@ -288,16 +287,16 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     return GestureDetector(
       onLongPress: () {
         if (leftHand) {
-          if (leftPrintFiles[index] == 'amputated') {
+          if (leftPrintFiles[index] == 'skip') {
             leftPrintFiles[index] = null;
           } else {
-            leftPrintFiles[index] = 'amputated';
+            leftPrintFiles[index] = 'skip';
           }
         } else {
-          if (rightPrintFiles[index] == 'amputated') {
+          if (rightPrintFiles[index] == 'skip') {
             rightPrintFiles[index] = null;
           } else {
-            rightPrintFiles[index] = 'amputated';
+            rightPrintFiles[index] = 'skip';
           }
         }
         _canEdit();
@@ -313,7 +312,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         child: IntrinsicHeight(
           child: Row(
             children: [
-              (!_isNull(index, leftHand) && !_isAmputated(index, leftHand))
+              (!_isNull(index, leftHand) && !_isSkipped(index, leftHand))
                   ? SizedBox(
                       width: 25,
                       height: 30,
@@ -350,7 +349,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                       'assets/icons/ic_fingerprint.svg',
                       height: 20,
                     )
-                  : !_isAmputated(index, leftHand)
+                  : !_isSkipped(index, leftHand)
                       ? GestureDetector(
                           onTap: () {
                             showDialog(
@@ -391,7 +390,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                           ),
                         )
                       : Text(
-                          'Amputated',
+                          'Skipped',
                           style: TypeStyle.body,
                         ),
               Visibility(

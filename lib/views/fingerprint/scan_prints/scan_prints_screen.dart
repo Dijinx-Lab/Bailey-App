@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
+import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ class ScanPrintsScreen extends StatefulWidget {
 }
 
 class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
+  final GlobalKey _cameraPreviewKey = GlobalKey();
   List<String> fingerNames = [
     'Pinky',
     'Ring Finger',
@@ -32,6 +34,9 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
   CameraController? _controller;
   Future<void>? _initializeControllerFuture;
   bool isCaptured = false;
+  bool showFocusCircle = false;
+  double x = 0;
+  double y = 0;
 
   @override
   void initState() {
@@ -54,7 +59,18 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
 
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
-    final firstCamera = cameras.last;
+    if (cameras.isEmpty ||
+        !cameras.any(
+            (element) => element.lensDirection == CameraLensDirection.back)) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ToastUtils.showCustomSnackbar(
+          context: context,
+          contentText: 'Your device doesn\'t have a back camera to scan prints',
+          type: 'error');
+    }
+    final firstCamera = cameras.firstWhere(
+        (element) => element.lensDirection == CameraLensDirection.back);
     _controller = CameraController(
       firstCamera,
       ResolutionPreset.max,
@@ -63,6 +79,53 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
     _initializeControllerFuture = _controller!.initialize();
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  // void _onCameraTap(
+  //   TapDownDetails details,
+  // ) async {
+  //   print('Global Position: ${details.globalPosition}');
+  //   print('Local Position: ${details.localPosition}');
+
+  //   if (_controller?.value.isInitialized ?? false) {
+  //     final RenderBox renderBox =
+  //         _cameraPreviewKey.currentContext!.findRenderObject() as RenderBox;
+  //     final position = renderBox.localToGlobal(Offset.zero);
+  //     print('Key Position: ${position}');
+  //     final relativeOffset = Offset(
+  //       (details.globalPosition.dx - position.dx) / renderBox.size.width,
+  //       (details.globalPosition.dy - position.dy) / renderBox.size.height,
+  //     );
+
+  //     print('Relative Offset: $relativeOffset');
+  //     await _controller!.setFocusPoint(relativeOffset);
+  //   }
+  // }
+
+  Future<void> _onCameraTap(TapDownDetails details) async {
+    if (_controller?.value.isInitialized ?? false) {
+      showFocusCircle = true;
+      x = details.localPosition.dx;
+      y = details.localPosition.dy;
+
+      double fullWidth = MediaQuery.of(context).size.width;
+      double cameraHeight = fullWidth * _controller!.value.aspectRatio;
+
+      double xp = x / fullWidth;
+      double yp = y / cameraHeight;
+
+      Offset point = Offset(xp, yp);
+
+      await _controller!.setFocusPoint(point);
+
+      setState(() {
+        Future.delayed(const Duration(seconds: 2)).whenComplete(() {
+          setState(() {
+            showFocusCircle = false;
+          });
+        });
+      });
     }
   }
 
@@ -190,9 +253,10 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                               ],
                             ),
                           )),
-                      Expanded(
+                      Center(
                         child: _buildScanPage(),
                       ),
+                      const Spacer(),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: isCaptured
@@ -221,10 +285,10 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
                                       height: 50,
                                       width: double.infinity,
                                       child: MRoundedButton(
-                                        'Amputated',
+                                        'Skip',
                                         () {
                                           printFiles[_currentIndex] =
-                                              'amputated';
+                                              'skip';
                                           int index = printFiles.indexWhere(
                                               (element) => element == null);
                                           if (index != -1) {
@@ -271,7 +335,7 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
 
   _buildScanPage() {
     return Container(
-      width: double.maxFinite,
+      //width: double.maxFinite,
       margin: const EdgeInsets.all(15),
       decoration: isCaptured
           ? null
@@ -289,8 +353,30 @@ class _ScanPrintsScreenState extends State<ScanPrintsScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.done) {
                   return ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: CameraPreview(_controller!));
+                    borderRadius: BorderRadius.circular(12),
+                    child: Stack(
+                      children: [
+                        GestureDetector(
+                          onTapDown: (details) => _onCameraTap(details),
+                          child: CameraPreview(
+                              key: _cameraPreviewKey, _controller!),
+                        ),
+                        if (showFocusCircle)
+                          Positioned(
+                              top: y - 20,
+                              left: x - 20,
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: ColorStyle.secondaryTextColor,
+                                        width: 1.5)),
+                              ))
+                      ],
+                    ),
+                  );
                 } else {
                   return Container();
                 }

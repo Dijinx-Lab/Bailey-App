@@ -40,7 +40,6 @@ class ToastUtils {
     bool isShowIcon = true,
     bool isCenteredText = false,
   }) {
-    bool isExecute = true;
     final snackbar = SnackBar(
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(

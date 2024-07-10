@@ -130,7 +130,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                       const SizedBox(height: 10),
                       Text(
                         widget.arguments.mode == 'gallery'
-                            ? 'To mark/unmark a finger as amputated long press on the tile'
+                            ? 'To skip/unskip a finger long press on the tile'
                             : 'To scan each fingerprint continue by tapping on the finger\'s tile',
                         textAlign: TextAlign.center,
                         style: TypeStyle.body,
@@ -187,6 +187,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                         }
                                       });
                                     } else {
+                                      if (!mounted) return;
                                       ToastUtils.showCustomSnackbar(
                                           context: context,
                                           contentText:
@@ -242,10 +243,10 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
     return GestureDetector(
       onLongPress: () {
         if (widget.arguments.mode == 'gallery') {
-          if (printFiles[index] == 'amputated') {
+          if (printFiles[index] == 'skip') {
             printFiles[index] = null;
           } else {
-            printFiles[index] = 'amputated';
+            printFiles[index] = 'skip';
           }
           _checkValidity();
         }
@@ -261,7 +262,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
         child: IntrinsicHeight(
           child: Row(
             children: [
-              printFiles[index] != null && printFiles[index] != 'amputated'
+              printFiles[index] != null && printFiles[index] != 'skip'
                   ? SizedBox(
                       width: 25,
                       height: 30,
@@ -297,7 +298,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                           : 'assets/icons/ic_fingerprint.svg',
                       height: 20,
                     )
-                  : printFiles[index] != 'amputated'
+                  : printFiles[index] != 'skip'
                       ? GestureDetector(
                           onTap: () {
                             showDialog(
@@ -336,7 +337,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                           ),
                         )
                       : Text(
-                          'Amputated',
+                          'Skipped',
                           style: TypeStyle.body,
                         ),
               Visibility(
