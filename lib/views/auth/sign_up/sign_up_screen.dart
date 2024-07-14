@@ -26,6 +26,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.initState();
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

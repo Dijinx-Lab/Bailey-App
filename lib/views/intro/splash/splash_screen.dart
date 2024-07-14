@@ -1,5 +1,6 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/style/color/color_style.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -34,9 +35,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _moveToNextScreen() {
-    Future.delayed(const Duration(milliseconds: 2000)).then((value) {
-      Navigator.of(context).pushReplacementNamed(onboardingRoute);
-    });
+    if (!PrefUtil().isOnboarded) {
+      Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+        Navigator.of(context).pushReplacementNamed(onboardingRoute);
+      });
+    } else {
+      Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+        Navigator.of(context).pushReplacementNamed(signinRoute);
+      });
+    }
   }
 
   @override
