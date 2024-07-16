@@ -25,6 +25,13 @@ class _SignInScreenState extends State<SignInScreen> {
     super.initState();
   }
 
+  _signInWithEmail() {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

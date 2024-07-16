@@ -32,7 +32,7 @@ class UserResponse {
 }
 
 class Data {
-  final User? user;
+  final UserDetail? user;
 
   Data({
     this.user,
@@ -43,7 +43,7 @@ class Data {
   String toRawJson() => json.encode(toJson());
 
   factory Data.fromJson(Map<String, dynamic> json) => Data(
-        user: json["user"] == null ? null : User.fromJson(json["user"]),
+        user: json["user"] == null ? null : UserDetail.fromJson(json["user"]),
       );
 
   Map<String, dynamic> toJson() => {

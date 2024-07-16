@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class User {
+class UserDetail {
   final String? name;
   final String? email;
   final String? token;
@@ -12,7 +12,7 @@ class User {
   final bool? handwritingsAdded;
   final bool? notificationsEnabled;
 
-  User({
+  UserDetail({
     this.name,
     this.email,
     this.token,
@@ -25,11 +25,12 @@ class User {
     this.notificationsEnabled,
   });
 
-  factory User.fromRawJson(String str) => User.fromJson(json.decode(str));
+  factory UserDetail.fromRawJson(String str) =>
+      UserDetail.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory User.fromJson(Map<String, dynamic> json) => User(
+  factory UserDetail.fromJson(Map<String, dynamic> json) => UserDetail(
         name: json["name"],
         email: json["email"],
         token: json["token"],
