@@ -8,7 +8,7 @@ import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:http/http.dart' as http;
 import 'package:bailey/keys/api/api_keys.dart';
 
-class UserRequestHandler {
+class UserService {
   Future<BaseResponse> signIn({
     required String email,
     required String password,
@@ -108,12 +108,12 @@ class UserRequestHandler {
     }
   }
 
-  Future<BaseResponse> sso(
-    String email,
-    String name,
-    String googleId,
-    String appleId,
-  ) async {
+  Future<BaseResponse> sso({
+    required String? email,
+    required String? name,
+    required String? googleId,
+    required String? appleId,
+  }) async {
     try {
       var url = ApiKeys.sso;
       var params = HashMap();
@@ -167,16 +167,16 @@ class UserRequestHandler {
     }
   }
 
-  Future<BaseResponse> edit(
-    String email,
-    String password,
-  ) async {
+  Future<BaseResponse> edit({
+    required String? email,
+    required String? name,
+  }) async {
     try {
       var url = ApiKeys.editProfile;
 
       var params = HashMap();
       params["email"] = email;
-      params["name"] = password;
+      params["name"] = name;
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.put(
         Uri.parse(url),
