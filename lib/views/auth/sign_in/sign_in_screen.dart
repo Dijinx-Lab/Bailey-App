@@ -1,10 +1,17 @@
+import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/api/base/base_response.dart';
+import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/misc/misc.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
+import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:bailey/widgets/inputs/text_field/m_text_field.dart';
+import 'package:bailey/widgets/loading/custom_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -25,11 +32,34 @@ class _SignInScreenState extends State<SignInScreen> {
     super.initState();
   }
 
+  _frontendValidation(email, password){
+    
+  }
+
   _signInWithEmail() {
     String email = _emailController.text;
     String password = _passwordController.text;
-
-    
+    String fcmToken = 'x';
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    ApiService.signIn(email: email, password: password, fcmToken: fcmToken)
+        .then((value) {
+      SmartDialog.dismiss();
+      UserResponse? apiResponse =
+          ApiService.processResponse(value, context) as UserResponse?;
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          PrefUtil().currentUser = apiResponse.data?.user;
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      }
+    });
   }
 
   @override
@@ -138,10 +168,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         width: double.infinity,
                         child: MRoundedButton(
                           'Login',
-                          () {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                                baseRoute, (route) => false);
-                          },
+                          () => _signInWithEmail(),
                         ),
                       ),
                       const SizedBox(height: 20),

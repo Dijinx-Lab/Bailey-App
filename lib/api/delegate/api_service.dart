@@ -3,9 +3,32 @@ import 'package:bailey/api/entities/handwriting/handwriting_service.dart';
 import 'package:bailey/api/entities/photo/photo_service.dart';
 import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/api/entities/user/user_service.dart';
+import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/base/base_response.dart';
+import 'package:bailey/utility/toast/toast_utils.dart';
+import 'package:flutter/material.dart';
 
 class ApiService {
+  //UTIL
+  static dynamic processResponse(BaseResponse response, BuildContext ctx) {
+    if (response.error == null) {
+      if (response.status == 401) {
+        Navigator.of(ctx)
+            .pushNamedAndRemoveUntil(signinRoute, (route) => false);
+        ToastUtils.showCustomSnackbar(
+            context: ctx, contentText: "Session expired", type: "fail");
+        return null;
+      } else {
+        return response.snapshot;
+      }
+    } else {
+      print(response.error);
+      ToastUtils.showCustomSnackbar(
+          context: ctx, contentText: response.error ?? "", type: "fail");
+      return null;
+    }
+  }
+
   //USER
   static Future<BaseResponse> signIn({
     required String email,

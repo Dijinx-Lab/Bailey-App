@@ -57,7 +57,7 @@ class ToastUtils {
                       : type == "fail"
                           ? Icons.error_outline
                           : Icons.info_outline,
-                  color: ColorStyle.blackColor,
+                  color: ColorStyle.whiteColor,
                 )
               : const SizedBox(
                   width: 0,
@@ -76,7 +76,7 @@ class ToastUtils {
               contentText,
               textAlign: isCenteredText ? TextAlign.center : TextAlign.start,
               style: const TextStyle(
-                  color: ColorStyle.blackColor,
+                  color: ColorStyle.whiteColor,
                   fontSize: 16,
                   fontWeight: FontWeight.w500),
             ),
@@ -84,7 +84,7 @@ class ToastUtils {
         ],
       ),
       backgroundColor:
-          type == "fail" ? ColorStyle.red100Color : ColorStyle.primaryColor,
+          type == "fail" ? ColorStyle.red100Color : ColorStyle.borderColor,
       duration: Duration(seconds: second),
       behavior: SnackBarBehavior.fixed,
     );

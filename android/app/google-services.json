@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "75617206819",
+    "project_id": "mobile-print-capture-app",
+    "storage_bucket": "mobile-print-capture-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:75617206819:android:5a69e29322555d874d6796",
+        "android_client_info": {
+          "package_name": "com.dijinx.bailey"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "75617206819-bcibcf7oc2i204f3t66s6p6f0q27bqrc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dijinx.bailey",
+            "certificate_hash": "0d0a915260d35b34c037a5915fd9b112696abdb0"
+          }
+        },
+        {
+          "client_id": "75617206819-n5elmo8kh10aeiq5tm0j701qntvv646n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dijinx.bailey",
+            "certificate_hash": "dd7fb07e0e5d5758a34d1fb7f8bf3c18df3c6ffe"
+          }
+        },
+        {
+          "client_id": "75617206819-e87eb4tsd36n3s7jugvlv85ig3rs7qcn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0tjgYv8rSDTRy1-OhYHJlCeX_5elYBZw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "75617206819-e87eb4tsd36n3s7jugvlv85ig3rs7qcn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "75617206819-skbhfj2topemqul0kaihb06gi733cano.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dijinx.bailey"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
