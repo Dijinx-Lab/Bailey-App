@@ -29,6 +29,12 @@ class PrefUtil {
     _sharedPreferences!.setBool(loggedIn, value);
   }
 
+  bool get rememberMe => _sharedPreferences!.getBool(keepLoggedIn) ?? false;
+
+  set rememberMe(bool value) {
+    _sharedPreferences!.setBool(keepLoggedIn, value);
+  }
+
   //USER
 
   UserDetail? get currentUser {
@@ -48,9 +54,11 @@ class PrefUtil {
         _sharedPreferences!.setString(userDetails, '');
       } else {
         final String teamJson = json.encode(value.toJson());
+        print(teamJson);
         _sharedPreferences!.setString(userDetails, teamJson);
       }
     } catch (e) {
+      print(e);
       _sharedPreferences!.setString(userDetails, '');
     }
   }

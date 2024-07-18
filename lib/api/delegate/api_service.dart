@@ -5,27 +5,42 @@ import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/api/entities/user/user_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/base/base_response.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:flutter/material.dart';
 
 class ApiService {
   //UTIL
   static dynamic processResponse(BaseResponse response, BuildContext ctx) {
-    if (response.error == null) {
-      if (response.status == 401) {
-        Navigator.of(ctx)
-            .pushNamedAndRemoveUntil(signinRoute, (route) => false);
+    if (response.status == 401) {
+      PrefUtil().currentUser = null;
+      PrefUtil().isLoggedIn = false;
+      Navigator.of(ctx).pushNamedAndRemoveUntil(signinRoute, (route) => false);
+      ToastUtils.showCustomSnackbar(
+          context: ctx, contentText: "Session expired", type: "fail");
+      return null;
+    } else if (response.error == null) {
+      return response.snapshot;
+    } else {
+      if (response.error == null) {
         ToastUtils.showCustomSnackbar(
-            context: ctx, contentText: "Session expired", type: "fail");
+            context: ctx,
+            contentText: "An error occured, please try again later",
+            type: "fail");
+        return null;
+      }
+      if (response.error!.contains("Connection refused")) {
+        ToastUtils.showCustomSnackbar(
+            context: ctx,
+            contentText:
+                "Could not connect to our server, please make sure you have a stable internet connection",
+            type: "fail");
         return null;
       } else {
-        return response.snapshot;
+        ToastUtils.showCustomSnackbar(
+            context: ctx, contentText: response.error ?? "", type: "fail");
+        return null;
       }
-    } else {
-      print(response.error);
-      ToastUtils.showCustomSnackbar(
-          context: ctx, contentText: response.error ?? "", type: "fail");
-      return null;
     }
   }
 

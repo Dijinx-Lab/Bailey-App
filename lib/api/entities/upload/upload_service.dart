@@ -16,7 +16,7 @@ class UploadService {
       var url = ApiKeys.upload;
 
       var request = http.MultipartRequest("POST", Uri.parse(url));
-      request.headers["authorization"] = PrefUtil().currentUser!.token!;
+      request.headers["Authorization"] = PrefUtil().currentUser!.token!;
       request.fields["folder"] = folder;
 
       http.MultipartFile uploadFile = await http.MultipartFile.fromPath(

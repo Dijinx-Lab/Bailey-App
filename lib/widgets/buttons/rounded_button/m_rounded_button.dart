@@ -54,7 +54,7 @@ class MRoundedButton extends StatelessWidget {
               isEnabled ? waterColor : Colors.transparent),
           backgroundColor: MaterialStateProperty.all<Color>(isEnabled
               ? buttonBackgroundColor
-              : buttonBackgroundColor.withOpacity(0.3)),
+              : buttonBackgroundColor.withOpacity(0.5)),
           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                   side: BorderSide(

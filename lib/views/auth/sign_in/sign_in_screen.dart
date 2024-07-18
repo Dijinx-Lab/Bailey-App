@@ -26,40 +26,52 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _showPassword = false;
   bool _rememberMe = false;
+  bool _isValid = false;
 
   @override
   void initState() {
     super.initState();
+    _emailController.addListener(() => _checkValidity());
+    _passwordController.addListener(() => _checkValidity());
   }
 
-  _frontendValidation(email, password){
-    
+  _checkValidity() {
+    _isValid = _emailController.text != "" && _passwordController.text != "";
+    setState(() {});
   }
 
   _signInWithEmail() {
-    String email = _emailController.text;
-    String password = _passwordController.text;
-    String fcmToken = 'x';
-    FocusManager.instance.primaryFocus?.unfocus();
-    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
-    ApiService.signIn(email: email, password: password, fcmToken: fcmToken)
-        .then((value) {
-      SmartDialog.dismiss();
-      UserResponse? apiResponse =
-          ApiService.processResponse(value, context) as UserResponse?;
-      if (apiResponse != null) {
-        if (apiResponse.success == true) {
-          PrefUtil().currentUser = apiResponse.data?.user;
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(baseRoute, (route) => false);
-        } else {
-          ToastUtils.showCustomSnackbar(
-              context: context,
-              contentText: apiResponse.message ?? "",
-              type: "fail");
+    try {
+      String email = _emailController.text;
+      String password = _passwordController.text;
+      String fcmToken = 'x';
+      FocusManager.instance.primaryFocus?.unfocus();
+      SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+      ApiService.signIn(email: email, password: password, fcmToken: fcmToken)
+          .then((value) {
+        SmartDialog.dismiss();
+        UserResponse? apiResponse =
+            ApiService.processResponse(value, context) as UserResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            PrefUtil().isLoggedIn = true;
+            PrefUtil().rememberMe = _rememberMe;
+            PrefUtil().currentUser = apiResponse.data?.user;
+            print(apiResponse.data?.user?.toJson());
+            print(PrefUtil().currentUser);
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -169,6 +181,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         child: MRoundedButton(
                           'Login',
                           () => _signInWithEmail(),
+                          isEnabled: _isValid,
                         ),
                       ),
                       const SizedBox(height: 20),

@@ -72,13 +72,15 @@ class UserService {
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         UserResponse userResponse = UserResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
@@ -96,13 +98,15 @@ class UserService {
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         GenericResponse userResponse = GenericResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
@@ -131,13 +135,15 @@ class UserService {
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         UserResponse userResponse = UserResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
@@ -152,16 +158,19 @@ class UserService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         UserResponse userResponse = UserResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
@@ -183,17 +192,19 @@ class UserService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
-          "authorization": PrefUtil().currentUser?.token ?? '',
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         UserResponse userResponse = UserResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
@@ -208,17 +219,19 @@ class UserService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
-          "authorization": PrefUtil().currentUser?.token ?? '',
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
+      var responseBody = json.decode(response.body);
       if (response.statusCode == 200) {
-        var responseBody = json.decode(response.body);
         GenericResponse userResponse = GenericResponse.fromJson(responseBody);
-
         return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
       } else {
-        return BaseResponse(response.statusCode, null, response.body);
+        return BaseResponse(response.statusCode, null, responseBody);
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());

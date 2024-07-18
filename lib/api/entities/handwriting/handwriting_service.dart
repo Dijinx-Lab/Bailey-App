@@ -26,7 +26,7 @@ class HandwritingService {
         body: json.encode(params),
         headers: {
           "content-type": "application/json",
-          "authorization": PrefUtil().currentUser?.token ?? '',
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
@@ -56,7 +56,7 @@ class HandwritingService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
-          "authorization": PrefUtil().currentUser?.token ?? '',
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
@@ -86,7 +86,7 @@ class HandwritingService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
-          "authorization": PrefUtil().currentUser?.token ?? '',
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 

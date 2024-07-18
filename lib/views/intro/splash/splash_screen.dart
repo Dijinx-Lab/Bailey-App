@@ -1,6 +1,9 @@
+import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/utility/pref/pref_util.dart';
+import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -12,6 +15,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _errorOccured = false;
+
   @override
   void initState() {
     _moveToFullScreen();
@@ -40,10 +45,52 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.of(context).pushReplacementNamed(onboardingRoute);
       });
     } else {
-      Future.delayed(const Duration(milliseconds: 2000)).then((value) {
-        Navigator.of(context).pushReplacementNamed(signinRoute);
-      });
+      if (PrefUtil().isLoggedIn) {
+        if (PrefUtil().rememberMe) {
+          _getAccountDetails();
+        } else {
+          PrefUtil().isLoggedIn = false;
+          PrefUtil().currentUser = null;
+          Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+            Navigator.of(context).pushReplacementNamed(signinRoute);
+          });
+        }
+      } else {
+        Future.delayed(const Duration(milliseconds: 2000)).then((value) {
+          Navigator.of(context).pushReplacementNamed(signinRoute);
+        });
+      }
     }
+  }
+
+  _getAccountDetails() {
+    ApiService.userDetail().then((value) async {
+      UserResponse? apiResponse =
+          ApiService.processResponse(value, context) as UserResponse?;
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          PrefUtil().currentUser = apiResponse.data?.user;
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+        } else {
+          setState(() {
+            _errorOccured = true;
+          });
+
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      } else {
+        if (mounted) {
+          await Future.delayed(Durations.medium1);
+          setState(() {
+            _errorOccured = true;
+          });
+        }
+      }
+    });
   }
 
   @override
