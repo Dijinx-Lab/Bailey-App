@@ -16,7 +16,8 @@ class UploadService {
       var url = ApiKeys.upload;
 
       var request = http.MultipartRequest("POST", Uri.parse(url));
-      request.headers["Authorization"] = PrefUtil().currentUser!.token!;
+      request.headers["authorization"] =
+          "Bearer ${PrefUtil().currentUser!.token!}";
       request.fields["folder"] = folder;
 
       http.MultipartFile uploadFile = await http.MultipartFile.fromPath(
@@ -33,7 +34,7 @@ class UploadService {
         return BaseResponse(value.statusCode, parsedResponse, null);
       } else {
         final response = await http.Response.fromStream(value);
-
+        print(response.body);
         return BaseResponse(value.statusCode, null, response.body);
       }
     } catch (e) {

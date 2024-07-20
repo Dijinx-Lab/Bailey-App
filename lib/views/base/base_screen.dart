@@ -1,11 +1,13 @@
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/views/home/home_screen.dart';
 import 'package:bailey/views/settings/settings_screen.dart';
+import 'package:event_bus/event_bus.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_svg/svg.dart';
 
 class BaseScreen extends StatefulWidget {
+  static final eventBus = EventBus();
   const BaseScreen({super.key});
 
   @override

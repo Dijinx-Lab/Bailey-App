@@ -13,8 +13,8 @@ class ApiService {
   //UTIL
   static dynamic processResponse(BaseResponse response, BuildContext ctx) {
     if (response.status == 401) {
-      PrefUtil().currentUser = null;
-      PrefUtil().isLoggedIn = false;
+      // PrefUtil().currentUser = null;
+      // PrefUtil().isLoggedIn = false;
       Navigator.of(ctx).pushNamedAndRemoveUntil(signinRoute, (route) => false);
       ToastUtils.showCustomSnackbar(
           context: ctx, contentText: "Session expired", type: "fail");

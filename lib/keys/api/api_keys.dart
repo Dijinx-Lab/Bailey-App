@@ -1,6 +1,6 @@
 class ApiKeys {
   //CONFIG
-  static const hostname = "http://localhost:3000/";
+  static const hostname = "http://35.83.142.188/";
   static const version = "api/v1/bailey";
   static const baseUrl = "$hostname$version";
 

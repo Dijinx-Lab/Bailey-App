@@ -1,9 +1,13 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
+import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
+import 'package:bailey/views/base/base_screen.dart';
 import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -15,7 +19,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool saved = false;
+  bool _fingerprintsFilled = false;
+  bool _handwritingsFilled = false;
+  bool _photosFilled = false;
+
+  @override
+  initState() {
+    _checkFilledStatus();
+    super.initState();
+
+    BaseScreen.eventBus
+        .on<RefreshHomeEvent>()
+        .listen((event) => _checkFilledStatus());
+  }
+
+  _checkFilledStatus() {
+    print('eventFired');
+    _fingerprintsFilled = PrefUtil().currentUser?.fingerprintsAdded ?? false;
+    _handwritingsFilled = PrefUtil().currentUser?.handwritingsAdded ?? false;
+    _photosFilled = PrefUtil().currentUser?.photosAdded ?? false;
+    print(_photosFilled);
+    setState(() {});
+  }
 
   Future<String?> _openSourceSheet() async {
     String? source = await showModalBottomSheet(
@@ -55,16 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            saved = !saved;
-                          });
-                        },
-                        child: Image.asset(
-                          'assets/icons/ic_logo_white.png',
-                          width: 60,
-                        ),
+                      child: Image.asset(
+                        'assets/icons/ic_logo_white.png',
+                        width: 60,
                       ),
                     ),
                   ],
@@ -103,9 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildTileWidget(
           'Fingerprints',
           'ic_finger',
-          saved,
+          _fingerprintsFilled,
           () async {
-            if (saved) {
+            if (_fingerprintsFilled) {
               Navigator.of(context).pushNamed(
                 viewPrintsRoute,
               );
@@ -125,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildTileWidget(
           'Hand Writing',
           'ic_sign',
-          saved,
+          _handwritingsFilled,
           () {
             Navigator.of(context).pushNamed(
               handwritingsRoute,
@@ -136,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _buildTileWidget(
           'Photo',
           'ic_image',
-          saved,
+          _photosFilled,
           () {
             Navigator.of(context).pushNamed(
               photosRoute,

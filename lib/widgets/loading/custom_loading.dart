@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:bailey/style/color/color_style.dart';
+import 'package:bailey/style/type/type_style.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 
 class CustomLoading extends StatefulWidget {
   const CustomLoading({Key? key, this.type = 0}) : super(key: key);
@@ -41,6 +41,9 @@ class _CustomLoadingState extends State<CustomLoading>
           visible: widget.type == 1, child: LoadingUtil.buildAdaptiveLoader()),
       Visibility(
           visible: widget.type == 2, child: LoadingUtil.buildLoadingTwo()),
+      Visibility(
+          visible: widget.type == 3,
+          child: LoadingUtil.buildUploadLoader(context)),
     ]);
   }
 
@@ -52,18 +55,51 @@ class _CustomLoadingState extends State<CustomLoading>
 }
 
 class LoadingUtil {
+  static Widget buildUploadLoader(BuildContext context,
+      {Color color = ColorStyle.blackColor}) {
+    return Center(
+      child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            decoration: BoxDecoration(
+                color: ColorStyle.whiteColor,
+                borderRadius: BorderRadius.circular(8)),
+            child: Column(children: [
+              const Icon(Icons.cloud_upload_outlined),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                'Uploading your media, this may take some time\nDo not close this screen',
+                textAlign: TextAlign.center,
+                style: TypeStyle.info2,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width - 100,
+                  child: buildLineLoader())
+            ]),
+          )),
+    );
+  }
+
   static Widget buildAdaptiveLoader({Color color = ColorStyle.whiteColor}) {
     return Center(
-        child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Platform.isAndroid
-                ? CircularProgressIndicator(
-                    color: color,
-                  )
-                : CupertinoActivityIndicator(
-                    radius: 15,
-                    color: color,
-                  )));
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Platform.isAndroid
+            ? CircularProgressIndicator(
+                color: color,
+              )
+            : CupertinoActivityIndicator(
+                radius: 15,
+                color: color,
+              ),
+      ),
+    );
   }
 
   static Widget buildLineLoader({Color color = ColorStyle.whiteColor}) {

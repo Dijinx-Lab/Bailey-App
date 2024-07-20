@@ -8,9 +8,9 @@ class UserDetail {
   final String? appleId;
   final DateTime? lastSigninOn;
   final bool? fingerprintsAdded;
-  final bool? photosAdded;
-  final bool? handwritingsAdded;
-  final bool? notificationsEnabled;
+  bool? photosAdded;
+  bool? handwritingsAdded;
+  bool? notificationsEnabled;
 
   UserDetail({
     this.name,
