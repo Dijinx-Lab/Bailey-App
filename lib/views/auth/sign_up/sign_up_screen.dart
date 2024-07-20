@@ -9,6 +9,7 @@ import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:bailey/widgets/inputs/text_field/m_text_field.dart';
 import 'package:bailey/widgets/loading/custom_loading.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
@@ -26,6 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   bool _showPassword = false;
   bool _agreeToTerms = false;
   bool _isValid = false;
@@ -48,18 +50,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
     setState(() {});
   }
 
-  _signUpWithEmail() {
+  Future<String?> _getFcmToken() async {
+    await _firebaseMessaging.requestPermission();
+    return await _firebaseMessaging.getToken();
+  }
+
+  _signUpWithEmail() async {
     String name = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
     String cPassword = _confirmPasswordController.text;
-    String fcmToken = 'x';
+    String? fcmToken = await _getFcmToken();
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
     ApiService.signUp(
             email: email,
             password: password,
-            fcmToken: fcmToken,
+            fcmToken: fcmToken ?? 'x',
             confirmPassword: cPassword,
             name: name)
         .then((value) {

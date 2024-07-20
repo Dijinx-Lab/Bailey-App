@@ -236,7 +236,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
                       : _photos.isEmpty
                           ? Center(
                               child: Text(
-                                'Photos in your account show up here.\nClick the  +  button to add some',
+                                'Photos in your account appear here.\nClick the  +  button to add some',
                                 textAlign: TextAlign.center,
                                 style: TypeStyle.body,
                               ),
