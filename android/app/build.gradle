@@ -52,7 +52,7 @@ android {
         applicationId "com.dijinx.bailey"
         
         minSdkVersion 26
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

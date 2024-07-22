@@ -4,11 +4,13 @@ import 'dart:typed_data';
 
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PickerUtil {
   static final ImagePicker _picker = ImagePicker();
+  static final ImageCropper _cropper = ImageCropper();
 
   static Future<String> converToBase64(String imagePath) async {
     try {
@@ -64,29 +66,34 @@ class PickerUtil {
     if (maxCount != null) {
       if (maxCount < imagePaths.length) {
         imagePaths = imagePaths.take(maxCount).toList();
-        if (context!.mounted) {
-          ToastUtils.showCustomSnackbar(
-              context: context,
-              contentText:
-                  "You can only choose a maximum of $maxCount items at a time",
-              type: "info");
+        if (!context!.mounted) {
+          return null;
         }
+        ToastUtils.showCustomSnackbar(
+            context: context,
+            contentText:
+                "You can only choose a maximum of $maxCount items at a time",
+            type: "info");
       }
     }
     return imagePaths;
   }
 
-  static Future<String?> pickImage() async {
+  static Future<String?> pickImage({bool addCropper = true}) async {
     String imagePath = '';
     if (Platform.isAndroid) {
       await Permission.storage.request();
     } else {
       await Permission.photos.request();
     }
-    XFile? xfile = await _picker.pickImage(
+    dynamic xfile = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 40,
     );
+    if (xfile != null && addCropper) {
+      xfile = await crop(filePath: xfile.path);
+    }
+
     if (xfile != null) {
       if (await File(xfile.path).exists()) {
         imagePath = xfile.path;
@@ -95,21 +102,35 @@ class PickerUtil {
     return imagePath;
   }
 
-  static Future<String?> captureImage() async {
+  static Future<String?> captureImage({bool addCropper = true}) async {
     String imagePath = '';
 
     await Permission.camera.request();
 
-    XFile? xfile = await _picker.pickImage(
+    dynamic xfile = await _picker.pickImage(
+      preferredCameraDevice: CameraDevice.rear,
       source: ImageSource.camera,
       imageQuality: 40,
     );
+    if (xfile != null && addCropper) {
+      xfile = await crop(filePath: xfile.path);
+    }
     if (xfile != null) {
       if (await File(xfile.path).exists()) {
         imagePath = xfile.path;
       }
     }
     return imagePath;
+  }
+
+  static Future<CroppedFile?> crop({required String filePath}) async {
+    CroppedFile? cfile = await _cropper.cropImage(
+        sourcePath: filePath,
+        cropStyle: CropStyle.rectangle,
+        compressQuality: 100,
+        compressFormat: ImageCompressFormat.png,
+        uiSettings: [IOSUiSettings(), AndroidUiSettings()]);
+    return cfile;
   }
 
   static Future<bool> isFileSmallerThan(

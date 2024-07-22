@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -17,19 +19,34 @@ class MPicture extends StatefulWidget {
 class _MPictureState extends State<MPicture> {
   @override
   Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: widget.url,
-      fit: widget.fit,
-      height: widget.height,
-      width: widget.width,
-      // placeholder: (context, url) => Image.asset(
-      //   'assets/images/default_image.jpg',
-      //   fit: BoxFit.cover,
-      // ),
-      errorWidget: (context, url, error) => Image.asset(
-        'assets/images/default_image.jpg',
-        fit: BoxFit.cover,
-      ),
-    );
+    return widget.url.startsWith('http')
+        ? CachedNetworkImage(
+            imageUrl: widget.url,
+            fit: widget.fit,
+            height: widget.height,
+            width: widget.width,
+            // placeholder: (context, url) => Image.asset(
+            //   'assets/images/default_image.jpg',
+            //   fit: BoxFit.cover,
+            // ),
+            errorWidget: (context, url, error) => Image.asset(
+              'assets/images/default_image.jpg',
+              fit: widget.fit,
+            ),
+          )
+        : Image.file(
+            File(widget.url),
+            fit: widget.fit,
+            height: widget.height,
+            width: widget.width,
+            // errorBuilder: (context, error, stackTrace) => Image.asset(
+            //   'assets/images/default_image.jpg',
+            //   fit: widget.fit,
+            // ),
+            // placeholder: (context, url) => Image.asset(
+            //   'assets/images/default_image.jpg',
+            //   fit: BoxFit.cover,
+            // ),
+          );
   }
 }

@@ -4,6 +4,7 @@ import 'package:bailey/models/api/handwriting/handwriting/handwriting.dart';
 import 'package:bailey/models/api/handwriting/list_response/handwriting_list_response.dart';
 import 'package:bailey/models/api/handwriting/response/handwriting_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
+import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -70,7 +71,7 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
     }
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 3));
     ApiService.upload(
-      folder: 'photos',
+      folder: 'handwritings',
       filePath: path,
     ).then((value) async {
       UploadResponse? apiResponse =
@@ -107,8 +108,10 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
       if (apiResponse != null) {
         if (apiResponse.success == true) {
           _writings.add(apiResponse.data!.handwriting!);
-          if (_writings.length == 1) {
-            PrefUtil().currentUser?.handwritingsAdded = true;
+          if (_writings.isNotEmpty) {
+            UserDetail? user = PrefUtil().currentUser;
+            user?.handwritingsAdded = true;
+            PrefUtil().currentUser = user;
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
           setState(() {});
@@ -134,7 +137,9 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
         if (apiResponse.success == true) {
           _writings.removeWhere((element) => element.id == writingId);
           if (_writings.isEmpty) {
-            PrefUtil().currentUser?.photosAdded = false;
+            UserDetail? user = PrefUtil().currentUser;
+            user?.handwritingsAdded = false;
+            PrefUtil().currentUser = user;
 
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
@@ -223,7 +228,8 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: Container(
+                child: AnimatedContainer(
+                  duration: Durations.medium1,
                   width: double.maxFinite,
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(

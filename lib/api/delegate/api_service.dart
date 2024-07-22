@@ -13,8 +13,8 @@ class ApiService {
   //UTIL
   static dynamic processResponse(BaseResponse response, BuildContext ctx) {
     if (response.status == 401) {
-      // PrefUtil().currentUser = null;
-      // PrefUtil().isLoggedIn = false;
+      PrefUtil().currentUser = null;
+      PrefUtil().isLoggedIn = false;
       Navigator.of(ctx).pushNamedAndRemoveUntil(signinRoute, (route) => false);
       ToastUtils.showCustomSnackbar(
           context: ctx, contentText: "Session expired", type: "fail");
@@ -93,6 +93,14 @@ class ApiService {
         email: email,
       );
 
+  static Future<BaseResponse> changePassword({
+    required String oldPass,
+    required String newPass,
+    required String confirmPass,
+  }) =>
+      UserService().changePassword(
+          oldPass: oldPass, newPass: newPass, confirmPass: confirmPass);
+
   static Future<BaseResponse> signOut() => UserService().signOut();
 
   static Future<BaseResponse> userDetail() => UserService().detail();
@@ -152,9 +160,11 @@ class ApiService {
       );
 
   static Future<BaseResponse> editPrint({
+    required String printId,
     required String uploadId,
   }) =>
       FingerprintService().edit(
+        printId: printId,
         uploadId: uploadId,
       );
 

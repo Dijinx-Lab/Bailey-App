@@ -43,6 +43,7 @@ class _SuccessfulScanScreenState extends State<SuccessfulScanScreen> {
                   child: MRoundedButton(
                     'Continue',
                     () {
+                      
                       Navigator.of(context)
                           .pushNamedAndRemoveUntil(baseRoute, (route) => false);
                     },

@@ -44,6 +44,14 @@ class _CustomLoadingState extends State<CustomLoading>
       Visibility(
           visible: widget.type == 3,
           child: LoadingUtil.buildUploadLoader(context)),
+      Visibility(
+          visible: widget.type == 4,
+          child: LoadingUtil.buildUploadLoader(context, multiple: true)),
+      Visibility(
+          visible: widget.type == 5,
+          child: LoadingUtil.buildEditPrintsLoader(
+            context,
+          )),
     ]);
   }
 
@@ -56,6 +64,39 @@ class _CustomLoadingState extends State<CustomLoading>
 
 class LoadingUtil {
   static Widget buildUploadLoader(BuildContext context,
+      {Color color = ColorStyle.blackColor, bool multiple = false}) {
+    return Center(
+      child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+            decoration: BoxDecoration(
+                color: ColorStyle.whiteColor,
+                borderRadius: BorderRadius.circular(8)),
+            child: Column(children: [
+              const Icon(Icons.cloud_upload_outlined),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                multiple
+                    ? "Uploading your media, this may take a few minutes\nDo not close this screen"
+                    : 'Uploading your media, this may take some time\nDo not close this screen',
+                textAlign: TextAlign.center,
+                style: TypeStyle.info2,
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width - 100,
+                  child: buildLineLoader())
+            ]),
+          )),
+    );
+  }
+
+  static Widget buildEditPrintsLoader(BuildContext context,
       {Color color = ColorStyle.blackColor}) {
     return Center(
       child: FittedBox(
@@ -71,7 +112,7 @@ class LoadingUtil {
                 height: 10,
               ),
               Text(
-                'Uploading your media, this may take some time\nDo not close this screen',
+                'Processing your changes, this may take some time\nDo not close this screen',
                 textAlign: TextAlign.center,
                 style: TypeStyle.info2,
               ),

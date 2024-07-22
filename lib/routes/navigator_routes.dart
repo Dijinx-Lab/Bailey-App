@@ -50,10 +50,10 @@ class NavigatorRoutes {
         page = PickFingerScreen(
           arguments: settings.arguments as PickFingerArgs,
         );
-      case scanPrintsRoute:
-        page = ScanPrintsScreen(
-          arguments: settings.arguments as ScanPrintsArgs,
-        );
+      // case scanPrintsRoute:
+      //   page = ScanPrintsScreen(
+      //     arguments: settings.arguments as ScanPrintsArgs,
+      //   );
       case successRoute:
         page = const SuccessfulScanScreen();
       case viewPrintsRoute:

@@ -95,10 +95,12 @@ class UserService {
         Uri.parse(url),
         headers: {
           "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
 
       var responseBody = json.decode(response.body);
+
       if (response.statusCode == 200) {
         GenericResponse userResponse = GenericResponse.fromJson(responseBody);
         return BaseResponse(response.statusCode, userResponse, null);
@@ -190,6 +192,7 @@ class UserService {
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.put(
         Uri.parse(url),
+        body: json.encode(params),
         headers: {
           "content-type": "application/json",
           "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
@@ -197,6 +200,7 @@ class UserService {
       );
 
       var responseBody = json.decode(response.body);
+      print(responseBody);
       if (response.statusCode == 200) {
         UserResponse userResponse = UserResponse.fromJson(responseBody);
         return BaseResponse(response.statusCode, userResponse, null);
@@ -224,6 +228,44 @@ class UserService {
       );
 
       var responseBody = json.decode(response.body);
+      if (response.statusCode == 200) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
+      } else {
+        return BaseResponse(response.statusCode, null, responseBody);
+      }
+    } catch (e) {
+      return BaseResponse(null, null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> changePassword({
+    required String oldPass,
+    required String newPass,
+    required String confirmPass,
+  }) async {
+    try {
+      var url = ApiKeys.changePassword;
+
+      var params = HashMap();
+      params["old_password"] = oldPass;
+      params["password"] = newPass;
+      params["confirm_password"] = confirmPass;
+      params.removeWhere((key, value) => value == null || value == '');
+      var response = await http.post(
+        Uri.parse(url),
+        body: json.encode(params),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      var responseBody = json.decode(response.body);
+
       if (response.statusCode == 200) {
         GenericResponse userResponse = GenericResponse.fromJson(responseBody);
         return BaseResponse(response.statusCode, userResponse, null);

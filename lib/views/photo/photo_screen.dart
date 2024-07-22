@@ -4,6 +4,7 @@ import 'package:bailey/models/api/photo/list_response/photo_list_response.dart';
 import 'package:bailey/models/api/photo/photo/photo.dart';
 import 'package:bailey/models/api/photo/response/photo_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
+import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -105,8 +106,10 @@ class _PhotoScreenState extends State<PhotoScreen> {
       if (apiResponse != null) {
         if (apiResponse.success == true) {
           _photos.add(apiResponse.data!.photo!);
-          if (_photos.length == 1) {
-            PrefUtil().currentUser?.photosAdded = true;
+          if (_photos.isNotEmpty) {
+            UserDetail? user = PrefUtil().currentUser;
+            user?.photosAdded = true;
+            PrefUtil().currentUser = user;
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
           setState(() {});
@@ -132,8 +135,9 @@ class _PhotoScreenState extends State<PhotoScreen> {
         if (apiResponse.success == true) {
           _photos.removeWhere((element) => element.id == photoId);
           if (_photos.isEmpty) {
-            PrefUtil().currentUser?.photosAdded = false;
-            print(PrefUtil().currentUser?.photosAdded);
+            UserDetail? user = PrefUtil().currentUser;
+            user?.photosAdded = false;
+            PrefUtil().currentUser = user;
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
           setState(() {});

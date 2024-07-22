@@ -52,8 +52,9 @@ class ColorStyle {
     colorScheme: ColorStyle.appScheme,
     primarySwatch: ColorStyle.primaryMaterialColor,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    dialogBackgroundColor: ColorStyle.whiteColor,
-    appBarTheme: const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
+    dialogBackgroundColor: ColorStyle.blackColor,
+    appBarTheme:
+        const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
     checkboxTheme: CheckboxThemeData(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4.0),

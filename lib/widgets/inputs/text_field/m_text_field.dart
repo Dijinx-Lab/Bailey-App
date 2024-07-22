@@ -115,7 +115,10 @@ class MTextField extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: SvgPicture.asset('assets/icons/$icon.svg'),
+                child: SvgPicture.asset(
+                  'assets/icons/$icon.svg',
+                  
+                ),
               ),
             ),
             suffixIcon: trailing,

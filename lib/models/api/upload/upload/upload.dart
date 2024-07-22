@@ -15,6 +15,13 @@ class Upload {
     this.key,
   });
 
+  Upload.copy(Upload original)
+      : id = original.id,
+        accessUrl = original.accessUrl,
+        ext = original.ext,
+        fileName = original.fileName,
+        key = original.key;
+
   factory Upload.fromRawJson(String str) => Upload.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());

@@ -51,18 +51,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<String?> _getFcmToken() async {
-    await _firebaseMessaging.requestPermission();
-    return await _firebaseMessaging.getToken();
+    try {
+      await _firebaseMessaging.requestPermission();
+      return await _firebaseMessaging.getToken();
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   _signUpWithEmail() async {
-    String name = _nameController.text;
+    String name = _nameController.text.trim();
     String email = _emailController.text;
     String password = _passwordController.text;
     String cPassword = _confirmPasswordController.text;
-    String? fcmToken = await _getFcmToken();
+
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    String? fcmToken = await _getFcmToken();
     ApiService.signUp(
             email: email,
             password: password,

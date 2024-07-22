@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
-import 'package:bailey/models/api/base/base_response.dart';
 import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
+import 'package:bailey/utility/auth/auth_util.dart';
 import 'package:bailey/utility/misc/misc.dart';
 import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
@@ -43,17 +45,23 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<String?> _getFcmToken() async {
-    await _firebaseMessaging.requestPermission();
-    return await _firebaseMessaging.getToken();
+    try {
+      await _firebaseMessaging.requestPermission();
+      return await _firebaseMessaging.getToken();
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   _signInWithEmail() async {
     try {
-      String email = _emailController.text;
+      String email = _emailController.text.trim();
       String password = _passwordController.text;
-      String? fcmToken = await _getFcmToken();
+
       FocusManager.instance.primaryFocus?.unfocus();
       SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+      String? fcmToken = await _getFcmToken();
       ApiService.signIn(
               email: email, password: password, fcmToken: fcmToken ?? 'x')
           .then((value) {
@@ -80,6 +88,58 @@ class _SignInScreenState extends State<SignInScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  _signInWithGoogle() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    String fcmToken = await _getFcmToken() ?? "x";
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+
+    AuthUtil.signInWithGoogle().then((userCredential) {
+      if (userCredential == null) {
+        SmartDialog.dismiss();
+        ToastUtils.showCustomSnackbar(
+            context: context,
+            contentText:
+                "Could not connect to Google services at the moment, please try again later",
+            type: "fail");
+        return;
+      }
+      String email = userCredential.user?.email ?? "";
+      String name = userCredential.user?.displayName ??
+          userCredential.user?.providerData[0].displayName ??
+          "";
+      String googleId = userCredential.user!.uid;
+      ApiService.sso(
+        email: email,
+        name: name,
+        googleId: googleId,
+        appleId: null,
+      ).then((value) async {
+        SmartDialog.dismiss();
+        if (value.error == null) {
+          UserResponse? apiResponse =
+              ApiService.processResponse(value, context) as UserResponse?;
+          if (apiResponse != null) {
+            if (apiResponse.success == true) {
+              PrefUtil().isLoggedIn = true;
+              PrefUtil().rememberMe = true;
+              PrefUtil().currentUser = apiResponse.data?.user;
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+            } else {
+              ToastUtils.showCustomSnackbar(
+                  context: context,
+                  contentText: apiResponse.message ?? "",
+                  type: "fail");
+            }
+          }
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context, contentText: value.error ?? "", type: "fail");
+        }
+      });
+    });
   }
 
   @override
@@ -223,7 +283,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 ),
                               ),
                               Text(
-                                '\t\tor\t\t',
+                                '\t\tor continue with\t\t',
                                 style: TypeStyle.body,
                               ),
                               const Expanded(
@@ -236,21 +296,56 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      InkWell(
-                        onTap: () => (),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Login with socials ',
-                              style: TypeStyle.body,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () => _signInWithGoogle(),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/ic_google.svg',
+                                    height: 20,
+                                    width: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    'Google ',
+                                    style: TypeStyle.body,
+                                  ),
+                                ],
+                              ),
                             ),
-                            SvgPicture.asset(
-                              'assets/icons/ic_next.svg',
-                            ),
-                          ],
-                        ),
+                          ),
+                          SizedBox(width: Platform.isIOS ? 10 : 0),
+                          !Platform.isIOS
+                              ? Container()
+                              : Expanded(
+                                  child: TextButton(
+                                    onPressed: () {},
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                          'assets/icons/ic_apple.svg',
+                                          height: 20,
+                                          width: 20,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          'Apple',
+                                          style: TypeStyle.body,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ],
                       ),
                     ],
                   ),

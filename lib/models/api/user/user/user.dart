@@ -7,7 +7,7 @@ class UserDetail {
   final String? googleId;
   final String? appleId;
   final DateTime? lastSigninOn;
-  final bool? fingerprintsAdded;
+  bool? fingerprintsAdded;
   bool? photosAdded;
   bool? handwritingsAdded;
   bool? notificationsEnabled;

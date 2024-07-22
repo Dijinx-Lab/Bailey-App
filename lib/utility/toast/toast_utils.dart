@@ -84,7 +84,7 @@ class ToastUtils {
         ],
       ),
       backgroundColor:
-          type == "fail" ? ColorStyle.red100Color : ColorStyle.borderColor,
+          type == "fail" ? ColorStyle.red100Color : ColorStyle.green100Color,
       duration: Duration(seconds: second),
       behavior: SnackBarBehavior.fixed,
     );

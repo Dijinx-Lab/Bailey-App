@@ -34,6 +34,8 @@ class FingerprintService {
         },
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
         FingerprintResponse userResponse =
@@ -53,10 +55,11 @@ class FingerprintService {
   }
 
   Future<BaseResponse> edit({
+    required String printId,
     required String uploadId,
   }) async {
     try {
-      var url = ApiKeys.editPrint;
+      var url = "${ApiKeys.editPrint}?id=$printId";
 
       var params = HashMap();
 
@@ -131,6 +134,8 @@ class FingerprintService {
           "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
+
+      print(url);
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);

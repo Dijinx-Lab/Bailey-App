@@ -1,16 +1,23 @@
 import 'dart:io';
+import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/api/fingerprint/response/fingerprint_response.dart';
+import 'package:bailey/models/api/upload/response/upload_response.dart';
+import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
-import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
+import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/picker/picker_util.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
+import 'package:bailey/views/base/base_screen.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
+import 'package:bailey/widgets/loading/custom_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class PickFingerScreen extends StatefulWidget {
   final PickFingerArgs arguments;
@@ -30,6 +37,14 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
     'Index Finger',
     'Thumb'
   ];
+  List<String> fingerTypes = [
+    "pinky",
+    "ring",
+    "middle",
+    "index",
+    "thumb",
+  ];
+
   List<String?> printFiles = [];
   bool isValid = false;
 
@@ -44,6 +59,106 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
   _checkValidity() {
     isValid = !printFiles.any((element) => element == null);
     setState(() {});
+  }
+
+  Future<String?> _makeUpload(String path) async {
+    try {
+      final value =
+          await ApiService.upload(folder: 'fingerprints', filePath: path);
+      if (mounted) {
+        UploadResponse? apiResponse =
+            ApiService.processResponse(value, context) as UploadResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            String uploadId = apiResponse.data?.upload?.id ?? "";
+            return uploadId;
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
+        }
+      }
+    } catch (e) {
+      ToastUtils.showCustomSnackbar(
+          context: context,
+          contentText: "An error occurred during upload",
+          type: "fail");
+    }
+    return null;
+  }
+
+  _uploadPrints() async {
+    List<String?> uploadIds = List.filled(5, null);
+    List<bool> sizeChecks = [];
+    for (String? printPath in printFiles) {
+      if (printPath != null && printPath != "skip") {
+        sizeChecks.add(await PickerUtil.isFileSmallerThan(printPath, 10));
+      }
+    }
+    if (mounted && sizeChecks.contains(false)) {
+      ToastUtils.showCustomSnackbar(
+          context: context,
+          contentText:
+              "One or more files are too large, please make sure your media is 10MB or less",
+          type: "fail");
+      return;
+    }
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 4));
+    for (int i = 0; i < printFiles.length; i++) {
+      String? printPath = printFiles[i];
+      if (printPath != null && printPath != "skip") {
+        uploadIds[i] = await _makeUpload(printPath);
+      } else {
+        uploadIds[i] = printPath;
+      }
+    }
+    for (int i = 0; i < printFiles.length; i++) {
+      if (uploadIds[i] != null) {
+        final value = await ApiService.addPrint(
+            hand: widget.arguments.currentHand.toLowerCase(),
+            finger: fingerTypes[i],
+            uploadId: uploadIds[i]!);
+        if (mounted) {
+          FingerprintResponse? apiResponse =
+              ApiService.processResponse(value, context)
+                  as FingerprintResponse?;
+          if (apiResponse != null) {
+            if (apiResponse.success != true) {
+              ToastUtils.showCustomSnackbar(
+                  context: context,
+                  contentText: apiResponse.message ?? "",
+                  type: "fail");
+            }
+          }
+        }
+      }
+    }
+    UserDetail? user = PrefUtil().currentUser;
+    user?.fingerprintsAdded = true;
+    PrefUtil().currentUser = user;
+    BaseScreen.eventBus.fire(RefreshHomeEvent());
+    SmartDialog.dismiss();
+    if (mounted) {
+      if (widget.arguments.currentHand == "Left") {
+        handsScanned.first = true;
+      } else {
+        handsScanned.last = true;
+      }
+      if (handsScanned.any((element) => element == false)) {
+        Navigator.of(context).pushNamed(
+          pickHandRoute,
+          arguments: PickHandArgs(
+            handsScanned: handsScanned,
+            mode: widget.arguments.mode,
+          ),
+        );
+      } else {
+        PrefUtil().currentUser?.fingerprintsAdded = true;
+        Navigator.of(context).pushNamed(successRoute);
+      }
+    }
   }
 
   @override
@@ -152,50 +267,58 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                       _checkValidity();
                                     }
                                   } else {
-                                    bool granted = false;
-                                    PermissionStatus permission =
-                                        await Permission.camera.status;
-
-                                    if (permission == PermissionStatus.denied ||
-                                        permission ==
-                                            PermissionStatus
-                                                .permanentlyDenied) {
-                                      permission =
-                                          await Permission.camera.request();
-                                      print(permission);
-                                      if (permission !=
-                                              PermissionStatus.denied &&
-                                          permission !=
-                                              PermissionStatus
-                                                  .permanentlyDenied) {
-                                        granted = true;
-                                      }
-                                    } else {
-                                      granted = true;
-                                    }
-                                    if (granted) {
-                                      Navigator.of(context)
-                                          .pushNamed(scanPrintsRoute,
-                                              arguments: ScanPrintsArgs(
-                                                  scans: printFiles))
-                                          .then((value) {
-                                        List<String?>? prints =
-                                            value as List<String?>?;
-                                        if (prints != null) {
-                                          printFiles = prints;
-                                          _checkValidity();
-                                        }
-                                      });
-                                    } else {
-                                      if (!mounted) return;
-                                      ToastUtils.showCustomSnackbar(
-                                          context: context,
-                                          contentText:
-                                              'Please grant this app camera permissions from your settings',
-                                          type: 'error');
+                                    String? file =
+                                        await PickerUtil.captureImage();
+                                    if (file != null && file != '') {
+                                      printFiles[index] = file;
+                                      _checkValidity();
                                     }
                                   }
-                                }, true),
+                                }
+                                    //   bool granted = false;
+                                    //   PermissionStatus permission =
+                                    //       await Permission.camera.status;
+
+                                    //   if (permission == PermissionStatus.denied ||
+                                    //       permission ==
+                                    //           PermissionStatus
+                                    //               .permanentlyDenied) {
+                                    //     permission =
+                                    //         await Permission.camera.request();
+                                    //     print(permission);
+                                    //     if (permission !=
+                                    //             PermissionStatus.denied &&
+                                    //         permission !=
+                                    //             PermissionStatus
+                                    //                 .permanentlyDenied) {
+                                    //       granted = true;
+                                    //     }
+                                    //   } else {
+                                    //     granted = true;
+                                    //   }
+                                    //   if (granted && mounted) {
+                                    //     Navigator.of(context)
+                                    //         .pushNamed(scanPrintsRoute,
+                                    //             arguments: ScanPrintsArgs(
+                                    //                 scans: printFiles))
+                                    //         .then((value) {
+                                    //       List<String?>? prints =
+                                    //           value as List<String?>?;
+                                    //       if (prints != null) {
+                                    //         printFiles = prints;
+                                    //         _checkValidity();
+                                    //       }
+                                    //     });
+                                    //   } else {
+                                    //     if (!mounted) return;
+                                    //     ToastUtils.showCustomSnackbar(
+                                    //         context: context,
+                                    //         contentText:
+                                    //             'Please grant this app camera permissions from your settings',
+                                    //         type: 'error');
+                                    //   }
+                                    // }
+                                    , true),
                               ),
                             ),
                           ),
@@ -207,23 +330,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                         child: MRoundedButton(
                           'Continue',
                           () {
-                            if (widget.arguments.currentHand == "Left") {
-                              handsScanned.first = true;
-                            } else {
-                              handsScanned.last = true;
-                            }
-                            if (handsScanned
-                                .any((element) => element == false)) {
-                              Navigator.of(context).pushNamed(
-                                pickHandRoute,
-                                arguments: PickHandArgs(
-                                  handsScanned: handsScanned,
-                                  mode: widget.arguments.mode,
-                                ),
-                              );
-                            } else {
-                              Navigator.of(context).pushNamed(successRoute);
-                            }
+                            _uploadPrints();
                           },
                           isEnabled: isValid,
                         ),
