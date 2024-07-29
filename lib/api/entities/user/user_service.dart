@@ -120,14 +120,16 @@ class UserService {
     required String? name,
     required String? googleId,
     required String? appleId,
+    required String? fcmToken,
   }) async {
     try {
       var url = ApiKeys.sso;
       var params = HashMap();
-      params["name"] = email;
+      params["name"] = name;
       params["email"] = email;
       params["google_id"] = googleId;
       params["apple_id"] = appleId;
+      params["fcm_token"] = fcmToken;
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.post(
         Uri.parse(url),
@@ -182,6 +184,7 @@ class UserService {
   Future<BaseResponse> edit({
     required String? email,
     required String? name,
+    required String? fcmToken,
   }) async {
     try {
       var url = ApiKeys.editProfile;
@@ -189,6 +192,7 @@ class UserService {
       var params = HashMap();
       params["email"] = email;
       params["name"] = name;
+      params["fcm_token"] = fcmToken;
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.put(
         Uri.parse(url),

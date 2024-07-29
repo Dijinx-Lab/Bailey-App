@@ -71,10 +71,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       FocusManager.instance.primaryFocus?.unfocus();
       SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
 
-      ApiService.editProfile(
-        email: email,
-        name: name,
-      ).then((value) {
+      ApiService.editProfile(email: email, name: name, fcmToken: null)
+          .then((value) {
         SmartDialog.dismiss();
         UserResponse? apiResponse =
             ApiService.processResponse(value, context) as UserResponse?;
@@ -325,11 +323,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           icon: 'ic_mail',
         ),
         const SizedBox(height: 20),
-        MTextField(
-          controller: _emailController,
-          label: 'Email',
-          keyboardType: TextInputType.emailAddress,
-          icon: 'ic_mail',
+        Visibility(
+          visible: PrefUtil().currentUser?.googleId == null &&
+              PrefUtil().currentUser?.appleId == null,
+          child: MTextField(
+            controller: _emailController,
+            label: 'Email',
+            keyboardType: TextInputType.emailAddress,
+            icon: 'ic_mail',
+          ),
         ),
       ],
     );

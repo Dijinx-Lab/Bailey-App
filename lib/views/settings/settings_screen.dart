@@ -2,6 +2,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
+import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -9,6 +10,7 @@ import 'package:bailey/utility/auth/auth_util.dart';
 import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/loading/custom_loading.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
@@ -22,6 +24,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
   _signOut() async {
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
@@ -81,6 +85,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  Future<String?> _getFcmToken() async {
+    try {
+      await _firebaseMessaging.requestPermission();
+      return await _firebaseMessaging.getToken();
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  _editProfile(bool pref) async {
+    try {
+      String fcmToken = 'x';
+      if (pref) {
+        fcmToken = await _getFcmToken() ?? "x";
+      }
+      SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+      ApiService.editProfile(email: null, name: null, fcmToken: fcmToken)
+          .then((value) {
+        SmartDialog.dismiss();
+        UserResponse? apiResponse =
+            ApiService.processResponse(value, context) as UserResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            PrefUtil().currentUser = apiResponse.data?.user;
+            setState(() {});
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,20 +171,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   arguments: ChangePasswordArgs(action: 'change_profile'),
                 );
               }),
-              const SizedBox(height: 20),
-              _buildTileWidget('Password', 'Change Password', 'ic_lock', () {
-                Navigator.of(context).pushNamed(
-                  changePasswordRoute,
-                  arguments: ChangePasswordArgs(action: 'change_pass'),
-                );
-              }),
+              Visibility(
+                visible: PrefUtil().currentUser?.googleId == null &&
+                    PrefUtil().currentUser?.appleId == null,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
+                    _buildTileWidget('Password', 'Change Password', 'ic_lock',
+                        () {
+                      Navigator.of(context).pushNamed(
+                        changePasswordRoute,
+                        arguments: ChangePasswordArgs(action: 'change_pass'),
+                      );
+                    }),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               _buildTileWidget(
                   'Notifications', 'Enable Notifications', 'ic_bell', () {
-                setState(() {
-                  PrefUtil().currentUser?.notificationsEnabled =
-                      !(PrefUtil().currentUser?.notificationsEnabled ?? false);
-                });
+                _editProfile(
+                    !(PrefUtil().currentUser?.notificationsEnabled ?? false));
               },
                   switchState:
                       (PrefUtil().currentUser?.notificationsEnabled ?? false)),
@@ -241,11 +292,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onToggle: (val) {
                           setState(
                             () {
-                              PrefUtil().currentUser?.notificationsEnabled =
-                                  !(PrefUtil()
-                                          .currentUser
-                                          ?.notificationsEnabled ??
-                                      false);
+                              _editProfile(!(PrefUtil()
+                                      .currentUser
+                                      ?.notificationsEnabled ??
+                                  false));
                             },
                           );
                         },

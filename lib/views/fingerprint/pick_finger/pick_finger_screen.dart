@@ -6,6 +6,7 @@ import 'package:bailey/models/api/upload/response/upload_response.dart';
 import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
+import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -260,65 +261,47 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: _buildTileWidget(
                                     index, fingerNames[index], () async {
-                                  if (widget.arguments.mode == 'gallery') {
-                                    String? file = await PickerUtil.pickImage();
-                                    if (file != null && file != '') {
-                                      printFiles[index] = file;
-                                      _checkValidity();
-                                    }
-                                  } else {
-                                    String? file =
-                                        await PickerUtil.captureImage();
-                                    if (file != null && file != '') {
-                                      printFiles[index] = file;
-                                      _checkValidity();
+                                  if (printFiles[index] == null) {
+                                    if (widget.arguments.mode == 'gallery') {
+                                      String? file = await PickerUtil.pickImage(
+                                          addCropper: false);
+                                      if (file != null &&
+                                          file != "" &&
+                                          mounted) {
+                                        Navigator.of(context)
+                                            .pushNamed(processPrintRoute,
+                                                arguments: ProcessPrintArgs(
+                                                    filePath: file))
+                                            .then((value) {
+                                          String? newPath = value as String?;
+                                          if (newPath != null) {
+                                            printFiles[index] = newPath;
+                                            _checkValidity();
+                                          }
+                                        });
+                                      }
+                                    } else {
+                                      String? file =
+                                          await PickerUtil.captureImage(
+                                              addCropper: false);
+                                      if (file != null &&
+                                          file != "" &&
+                                          mounted) {
+                                        Navigator.of(context)
+                                            .pushNamed(processPrintRoute,
+                                                arguments: ProcessPrintArgs(
+                                                    filePath: file))
+                                            .then((value) {
+                                          String? newPath = value as String?;
+                                          if (newPath != null) {
+                                            printFiles[index] = newPath;
+                                            _checkValidity();
+                                          }
+                                        });
+                                      }
                                     }
                                   }
-                                }
-                                    //   bool granted = false;
-                                    //   PermissionStatus permission =
-                                    //       await Permission.camera.status;
-
-                                    //   if (permission == PermissionStatus.denied ||
-                                    //       permission ==
-                                    //           PermissionStatus
-                                    //               .permanentlyDenied) {
-                                    //     permission =
-                                    //         await Permission.camera.request();
-                                    //     print(permission);
-                                    //     if (permission !=
-                                    //             PermissionStatus.denied &&
-                                    //         permission !=
-                                    //             PermissionStatus
-                                    //                 .permanentlyDenied) {
-                                    //       granted = true;
-                                    //     }
-                                    //   } else {
-                                    //     granted = true;
-                                    //   }
-                                    //   if (granted && mounted) {
-                                    //     Navigator.of(context)
-                                    //         .pushNamed(scanPrintsRoute,
-                                    //             arguments: ScanPrintsArgs(
-                                    //                 scans: printFiles))
-                                    //         .then((value) {
-                                    //       List<String?>? prints =
-                                    //           value as List<String?>?;
-                                    //       if (prints != null) {
-                                    //         printFiles = prints;
-                                    //         _checkValidity();
-                                    //       }
-                                    //     });
-                                    //   } else {
-                                    //     if (!mounted) return;
-                                    //     ToastUtils.showCustomSnackbar(
-                                    //         context: context,
-                                    //         contentText:
-                                    //             'Please grant this app camera permissions from your settings',
-                                    //         type: 'error');
-                                    //   }
-                                    // }
-                                    , true),
+                                }, true),
                               ),
                             ),
                           ),

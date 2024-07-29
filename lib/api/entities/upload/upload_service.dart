@@ -14,7 +14,8 @@ class UploadService {
   }) async {
     try {
       var url = ApiKeys.upload;
-
+      print(url);
+      print(filePath);
       var request = http.MultipartRequest("POST", Uri.parse(url));
       request.headers["authorization"] =
           "Bearer ${PrefUtil().currentUser!.token!}";
@@ -22,7 +23,7 @@ class UploadService {
 
       http.MultipartFile uploadFile = await http.MultipartFile.fromPath(
           'file', filePath,
-          contentType: _getContentType(filePath));
+          contentType: getContentType(filePath));
       request.files.add(uploadFile);
 
       var value = await request.send();
@@ -30,6 +31,7 @@ class UploadService {
       if (value.statusCode == 200) {
         final response = await http.Response.fromStream(value);
         var responseBody = json.decode(response.body);
+        print(response.body);
         UploadResponse parsedResponse = UploadResponse.fromJson(responseBody);
         return BaseResponse(value.statusCode, parsedResponse, null);
       } else {
@@ -38,11 +40,12 @@ class UploadService {
         return BaseResponse(value.statusCode, null, response.body);
       }
     } catch (e) {
+      print(e.toString());
       return BaseResponse(null, null, e.toString());
     }
   }
 
-  parser.MediaType _getContentType(String filePath) {
+  parser.MediaType getContentType(String filePath) {
     String extension = filePath.split('.').last.toLowerCase();
 
     switch (extension) {

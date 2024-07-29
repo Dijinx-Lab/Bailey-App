@@ -2,11 +2,11 @@ import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
-import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
+import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/views/auth/change_password/change_password_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
 import 'package:bailey/views/base/base_screen.dart';
-import 'package:bailey/views/fingerprint/scan_prints/scan_prints_screen.dart';
+import 'package:bailey/views/fingerprint/process_print/process_print_screen.dart';
 import 'package:bailey/views/fingerprint/view_prints/view_prints_screen.dart';
 import 'package:bailey/views/handwriting/handwriting_screen.dart';
 import 'package:bailey/views/intro/onboarding/onboarding_screen.dart';
@@ -50,10 +50,10 @@ class NavigatorRoutes {
         page = PickFingerScreen(
           arguments: settings.arguments as PickFingerArgs,
         );
-      // case scanPrintsRoute:
-      //   page = ScanPrintsScreen(
-      //     arguments: settings.arguments as ScanPrintsArgs,
-      //   );
+      case processPrintRoute:
+        page = ProcessPrintScreen(
+          arguments: settings.arguments as ProcessPrintArgs,
+        );
       case successRoute:
         page = const SuccessfulScanScreen();
       case viewPrintsRoute:

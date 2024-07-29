@@ -5,7 +5,7 @@ import 'package:bailey/models/api/fingerprint/list_response/fingerprint_list_res
 import 'package:bailey/models/api/fingerprint/response/fingerprint_response.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
-import 'package:bailey/models/args/scan_prints/scan_prints_args.dart';
+import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/picker/picker_util.dart';
@@ -17,7 +17,6 @@ import 'package:bailey/widgets/m_picture/m_picture.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ViewPrintsScreen extends StatefulWidget {
   const ViewPrintsScreen({super.key});
@@ -179,9 +178,9 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
       for (int i = 0; i < originalRightHandPrints.length; i++) {
         if (originalRightHandPrints[i]?.changeKey !=
             rightHandPrints[i]?.changeKey) {
-          if (leftHandPrints[i]?.changeKey == null) {
+          if (rightHandPrints[i]?.changeKey == null) {
             await _deletePrint(rightHandPrints[i]!.id!);
-          } else if (originalLeftHandPrints[i]?.changeKey == null &&
+          } else if (originalRightHandPrints[i]?.changeKey == null &&
               rightHandPrints[i]?.changeKey != null) {
             await _addPrint(false, i);
           } else {
@@ -233,6 +232,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
             : await _makeUpload(rightHandPrints[index]?.changeKey ?? "");
       }
       print(uploadId);
+
       if (uploadId == null) return null;
       var value = await ApiService.addPrint(
           hand: leftHand ? 'left' : 'right',
@@ -254,6 +254,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         }
       }
     } catch (e) {
+      print("finger ${rightHandPrints[index]?.finger}");
       print(e);
     }
     return null;
@@ -307,6 +308,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         if (apiResponse != null) {
           if (apiResponse.success == true) {
             String uploadId = apiResponse.data?.upload?.id ?? "";
+            print(uploadId);
             return uploadId;
           } else {
             ToastUtils.showCustomSnackbar(
@@ -413,6 +415,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
   _buildTabBar() {
     return TabBar(
       controller: _tabController,
+      dividerColor: Colors.transparent,
       tabs: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 7),
@@ -467,52 +470,31 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
               if (_isNull(index, leftHand)) {
                 String? source = await _openSourceSheet();
                 if (source == 'gallery') {
-                  String? file = await PickerUtil.pickImage();
-                  _updateChangeKey(file, leftHand, index);
-                } else if (source == 'camera') {
-                  bool granted = false;
-                  PermissionStatus permission = await Permission.camera.status;
-
-                  if (permission == PermissionStatus.denied ||
-                      permission == PermissionStatus.permanentlyDenied) {
-                    permission = await Permission.camera.request();
-
-                    if (permission != PermissionStatus.denied &&
-                        permission != PermissionStatus.permanentlyDenied) {
-                      granted = true;
-                    }
-                  } else {
-                    granted = true;
-                  }
-                  if (granted && mounted) {
+                  String? file = await PickerUtil.pickImage(addCropper: false);
+                  if (file != null && file != "" && mounted) {
                     Navigator.of(context)
-                        .pushNamed(
-                      scanPrintsRoute,
-                      arguments: ScanPrintsArgs(
-                        singleScan: true,
-                        initIndex: index,
-                        scans: (leftHand ? leftHandPrints : rightHandPrints)
-                            .map((e) => e?.changeKey)
-                            .toList(),
-                      ),
-                    )
+                        .pushNamed(processPrintRoute,
+                            arguments: ProcessPrintArgs(filePath: file))
                         .then((value) {
-                      List<String?>? prints = value as List<String?>?;
-                      if (prints != null && prints.isNotEmpty) {
-                        _updateChangeKey(
-                          prints.first,
-                          leftHand,
-                          index,
-                        );
+                      String? newPath = value as String?;
+                      if (newPath != null) {
+                        _updateChangeKey(newPath, leftHand, index);
                       }
                     });
-                  } else {
-                    if (!mounted) return;
-                    ToastUtils.showCustomSnackbar(
-                        context: context,
-                        contentText:
-                            'Please grant this app camera permissions from your settings',
-                        type: 'error');
+                  }
+                } else if (source == 'camera') {
+                  String? file =
+                      await PickerUtil.captureImage(addCropper: false);
+                  if (file != null && file != "" && mounted) {
+                    Navigator.of(context)
+                        .pushNamed(processPrintRoute,
+                            arguments: ProcessPrintArgs(filePath: file))
+                        .then((value) {
+                      String? newPath = value as String?;
+                      if (newPath != null) {
+                        _updateChangeKey(newPath, leftHand, index);
+                      }
+                    });
                   }
                 }
               }
@@ -619,37 +601,38 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                  title: Text(
-                                    "${leftHand ? 'Left' : 'Right'} ${fingerNames[index]}",
-                                    style: TypeStyle.h1,
-                                  ),
-                                  titlePadding: const EdgeInsets.only(
-                                      left: 20, right: 20, top: 20),
-                                  backgroundColor: ColorStyle.backgroundColor,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 20),
-                                  actionsAlignment: MainAxisAlignment.center,
-                                  buttonPadding: const EdgeInsets.only(
-                                      left: 20, right: 20, bottom: 20),
-                                  actions: [
-                                    SizedBox(
-                                      width: double.maxFinite,
-                                      height: 50,
-                                      child: MRoundedButton('Done', () {
-                                        Navigator.of(context).pop();
-                                      }),
-                                    )
-                                  ],
-                                  content: MPicture(
-                                      url: leftHand
-                                          ? leftHandPrints[index]
-                                                  ?.upload
-                                                  ?.accessUrl ??
-                                              ""
-                                          : rightHandPrints[index]
-                                                  ?.upload
-                                                  ?.accessUrl ??
-                                              "")),
+                                title: Text(
+                                  "${leftHand ? 'Left' : 'Right'} ${fingerNames[index]}",
+                                  style: TypeStyle.h1,
+                                ),
+                                titlePadding: const EdgeInsets.only(
+                                    left: 20, right: 20, top: 20),
+                                backgroundColor: ColorStyle.backgroundColor,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 20),
+                                actionsAlignment: MainAxisAlignment.center,
+                                buttonPadding: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 20),
+                                actions: [
+                                  SizedBox(
+                                    width: double.maxFinite,
+                                    height: 50,
+                                    child: MRoundedButton('Done', () {
+                                      Navigator.of(context).pop();
+                                    }),
+                                  )
+                                ],
+                                content: MPicture(
+                                    url: leftHand
+                                        ? leftHandPrints[index]
+                                                ?.upload
+                                                ?.accessUrl ??
+                                            ""
+                                        : rightHandPrints[index]
+                                                ?.upload
+                                                ?.accessUrl ??
+                                            ""),
+                              ),
                             );
                           },
                           child: SizedBox(

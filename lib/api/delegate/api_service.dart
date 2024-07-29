@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:bailey/api/entities/fingerprint/fingerprint_service.dart';
 import 'package:bailey/api/entities/handwriting/handwriting_service.dart';
 import 'package:bailey/api/entities/photo/photo_service.dart';
@@ -76,21 +78,24 @@ class ApiService {
     required String? name,
     required String? googleId,
     required String? appleId,
+    required String? fcmToken,
   }) =>
       UserService().sso(
-        name: name,
-        email: email,
-        googleId: googleId,
-        appleId: appleId,
-      );
+          name: name,
+          email: email,
+          googleId: googleId,
+          appleId: appleId,
+          fcmToken: fcmToken);
 
   static Future<BaseResponse> editProfile({
     required String? email,
     required String? name,
+    required String? fcmToken,
   }) =>
       UserService().edit(
         name: name,
         email: email,
+        fcmToken: fcmToken,
       );
 
   static Future<BaseResponse> changePassword({
@@ -173,5 +178,12 @@ class ApiService {
   static Future<BaseResponse> deletePrint({required String printId}) =>
       FingerprintService().delete(
         printId: printId,
+      );
+
+  static Future<BaseResponse> prcoessPrint({
+    required Uint8List fileBytes,
+  }) =>
+      FingerprintService().process(
+        fileBytes: fileBytes,
       );
 }

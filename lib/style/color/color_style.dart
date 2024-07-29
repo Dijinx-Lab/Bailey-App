@@ -32,14 +32,12 @@ class ColorStyle {
 
   static const ColorScheme appScheme = ColorScheme(
     brightness: Brightness.light,
-    background: ColorStyle.backgroundColor,
     primary: ColorStyle.primaryColor,
     onPrimary: ColorStyle.whiteColor,
     secondary: ColorStyle.primaryColor,
     onSecondary: ColorStyle.whiteColor,
     error: ColorStyle.red100Color,
     onError: ColorStyle.whiteColor,
-    onBackground: ColorStyle.primaryTextColor,
     surface: ColorStyle.backgroundColor,
     onSurface: ColorStyle.primaryTextColor,
   );

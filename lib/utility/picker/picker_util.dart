@@ -124,6 +124,7 @@ class PickerUtil {
   }
 
   static Future<CroppedFile?> crop({required String filePath}) async {
+    
     CroppedFile? cfile = await _cropper.cropImage(
         sourcePath: filePath,
         cropStyle: CropStyle.rectangle,

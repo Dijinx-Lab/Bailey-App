@@ -37,25 +37,25 @@ class MRoundedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ButtonStyle(
-          padding: MaterialStateProperty.resolveWith<EdgeInsets>(
-            (Set<MaterialState> states) {
+          padding: WidgetStateProperty.resolveWith<EdgeInsets>(
+            (Set<WidgetState> states) {
               return EdgeInsets.only(left: leftPadding, right: rightPadding);
             },
           ),
-          elevation: MaterialStateProperty.resolveWith<double>(
-            (Set<MaterialState> states) {
-              if (states.contains(MaterialState.disabled)) {
+          elevation: WidgetStateProperty.resolveWith<double>(
+            (Set<WidgetState> states) {
+              if (states.contains(WidgetState.disabled)) {
                 return 0;
               }
               return elevation;
             },
           ),
-          overlayColor: MaterialStateProperty.all<Color>(
+          overlayColor: WidgetStateProperty.all<Color>(
               isEnabled ? waterColor : Colors.transparent),
-          backgroundColor: MaterialStateProperty.all<Color>(isEnabled
+          backgroundColor: WidgetStateProperty.all<Color>(isEnabled
               ? buttonBackgroundColor
               : buttonBackgroundColor.withOpacity(0.5)),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
               RoundedRectangleBorder(
                   side: BorderSide(
                       color: isEnabled

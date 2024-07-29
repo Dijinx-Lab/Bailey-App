@@ -98,11 +98,6 @@ class _SignInScreenState extends State<SignInScreen> {
     AuthUtil.signInWithGoogle().then((userCredential) {
       if (userCredential == null) {
         SmartDialog.dismiss();
-        ToastUtils.showCustomSnackbar(
-            context: context,
-            contentText:
-                "Could not connect to Google services at the moment, please try again later",
-            type: "fail");
         return;
       }
       String email = userCredential.user?.email ?? "";
@@ -111,11 +106,12 @@ class _SignInScreenState extends State<SignInScreen> {
           "";
       String googleId = userCredential.user!.uid;
       ApiService.sso(
-        email: email,
-        name: name,
-        googleId: googleId,
-        appleId: null,
-      ).then((value) async {
+              email: email,
+              name: name,
+              googleId: googleId,
+              appleId: null,
+              fcmToken: fcmToken)
+          .then((value) async {
         SmartDialog.dismiss();
         if (value.error == null) {
           UserResponse? apiResponse =

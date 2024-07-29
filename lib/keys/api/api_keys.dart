@@ -35,4 +35,8 @@ class ApiKeys {
   static const addWriting = "$baseUrl/writings/add";
   static const listWritings = "$baseUrl/writings/list";
   static const deleteWriting = "$baseUrl/writings/delete";
+
+  //PROCESSING SERVICE
+  static const processingServices =
+      "https://6udu32edub.execute-api.us-west-2.amazonaws.com/prod/process/extract?rmbg=false";
 }
