@@ -191,7 +191,6 @@ class FingerprintService {
         return BaseResponse(value.statusCode, parsedResponse, null);
       } else {
         final response = await http.Response.fromStream(value);
-        print(response.body);
         return BaseResponse(value.statusCode, null, response.body);
       }
     } catch (e) {

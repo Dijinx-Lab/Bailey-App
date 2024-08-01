@@ -95,7 +95,9 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
         }
       } else {
         ToastUtils.showCustomSnackbar(
-            context: context, contentText: value.error ?? "", type: "fail");
+            context: context,
+            contentText: "Unable to process your fingerprints, please retry",
+            type: "fail");
       }
     });
   }
@@ -129,7 +131,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
     if (mimeType != null) {
       var ext = extensionFromMime(mimeType);
       fileExtension = '.$ext';
-        }
+    }
 
     // Construct the file path using the unique ID and optional extension
     String filePath =

@@ -659,10 +659,11 @@ packages:
   local_rembg:
     dependency: "direct main"
     description:
-      name: local_rembg
-      sha256: f20a38ce71a92c439991359b51fdb99addad0d6957c81f6670855653b1d5e050
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "0fcb602dd0ce2a27415ee962ca884120d024bd08"
+      url: "https://github.com/Moasfar-Javed/local_rembg.git"
+    source: git
     version: "1.1.2"
   macos_ui:
     dependency: transitive
