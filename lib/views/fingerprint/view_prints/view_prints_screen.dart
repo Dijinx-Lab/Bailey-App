@@ -5,10 +5,12 @@ import 'package:bailey/models/api/fingerprint/list_response/fingerprint_list_res
 import 'package:bailey/models/api/fingerprint/response/fingerprint_response.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
+import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/picker/picker_util.dart';
+import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
@@ -327,6 +329,29 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     return null;
   }
 
+  _openPreview(int index, bool leftHand) {
+    List<String> rawPaths = [], filteredPaths = [], titles = [];
+    if (leftHand) {
+      rawPaths = leftHandPrints.map((e) => e?.changeKey ?? "").toList();
+    } else {
+      rawPaths = rightHandPrints.map((e) => e?.changeKey ?? "").toList();
+    }
+    for (int i = 0; i < rawPaths.length; i++) {
+      if (rawPaths[i] != "") {
+        titles.add(fingerNames[i]);
+        filteredPaths.add(rawPaths[i]);
+      }
+    }
+    Navigator.of(context).pushNamed(
+      previewImageRoute,
+      arguments: PreviewImageArgs(
+        initialIndex: index == -1 ? 0 : index,
+        titles: titles,
+        imageUrls: filteredPaths,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -459,6 +484,40 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     );
   }
 
+  _redirectToSource(bool fromGallery, int index, bool leftHand) async {
+    String? file;
+    if (fromGallery) {
+      file = await PickerUtil.pickImage(addCropper: false);
+    } else {
+      file = await PickerUtil.captureImage(addCropper: false);
+    }
+
+    if (file != null && file != "" && mounted) {
+      Navigator.of(context)
+          .pushNamed(processPrintRoute,
+              arguments: ProcessPrintArgs(filePath: file))
+          .then((value) {
+        String? newPath = value as String?;
+        if (newPath != null) {
+          _updateChangeKey(newPath, leftHand, index);
+        }
+      });
+    }
+  }
+
+  _openSource(bool fromGallery, int index, bool leftHand) {
+    if (PrefUtil().showFingerprintTips) {
+      Navigator.of(context).pushNamed(tipsRoute).then((value) async {
+        bool? res = value as bool?;
+        if (res == true) {
+          _redirectToSource(fromGallery, index, leftHand);
+        }
+      });
+    } else {
+      _redirectToSource(fromGallery, index, leftHand);
+    }
+  }
+
   _buildPrintsList(bool leftHand) {
     return SingleChildScrollView(
       child: Column(
@@ -469,34 +528,35 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
             child: _buildTileWidget(index, fingerNames[index], () async {
               if (_isNull(index, leftHand)) {
                 String? source = await _openSourceSheet();
-                if (source == 'gallery') {
-                  String? file = await PickerUtil.pickImage(addCropper: false);
-                  if (file != null && file != "" && mounted) {
-                    Navigator.of(context)
-                        .pushNamed(processPrintRoute,
-                            arguments: ProcessPrintArgs(filePath: file))
-                        .then((value) {
-                      String? newPath = value as String?;
-                      if (newPath != null) {
-                        _updateChangeKey(newPath, leftHand, index);
-                      }
-                    });
-                  }
-                } else if (source == 'camera') {
-                  String? file =
-                      await PickerUtil.captureImage(addCropper: false);
-                  if (file != null && file != "" && mounted) {
-                    Navigator.of(context)
-                        .pushNamed(processPrintRoute,
-                            arguments: ProcessPrintArgs(filePath: file))
-                        .then((value) {
-                      String? newPath = value as String?;
-                      if (newPath != null) {
-                        _updateChangeKey(newPath, leftHand, index);
-                      }
-                    });
-                  }
-                }
+                _openSource(source == 'gallery', index, leftHand);
+                // if (source == 'gallery') {
+                //   String? file = await PickerUtil.pickImage(addCropper: false);
+                //   if (file != null && file != "" && mounted) {
+                //     Navigator.of(context)
+                //         .pushNamed(processPrintRoute,
+                //             arguments: ProcessPrintArgs(filePath: file))
+                //         .then((value) {
+                //       String? newPath = value as String?;
+                //       if (newPath != null) {
+                //         _updateChangeKey(newPath, leftHand, index);
+                //       }
+                //     });
+                //   }
+                // } else if (source == 'camera') {
+                //   String? file =
+                //       await PickerUtil.captureImage(addCropper: false);
+                //   if (file != null && file != "" && mounted) {
+                //     Navigator.of(context)
+                //         .pushNamed(processPrintRoute,
+                //             arguments: ProcessPrintArgs(filePath: file))
+                //         .then((value) {
+                //       String? newPath = value as String?;
+                //       if (newPath != null) {
+                //         _updateChangeKey(newPath, leftHand, index);
+                //       }
+                //     });
+                //   }
+                // }
               }
             }, leftHand),
           ),
@@ -598,42 +658,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                   : !_isSkipped(index, leftHand)
                       ? GestureDetector(
                           onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(
-                                  "${leftHand ? 'Left' : 'Right'} ${fingerNames[index]}",
-                                  style: TypeStyle.h1,
-                                ),
-                                titlePadding: const EdgeInsets.only(
-                                    left: 20, right: 20, top: 20),
-                                backgroundColor: ColorStyle.backgroundColor,
-                                contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 20),
-                                actionsAlignment: MainAxisAlignment.center,
-                                buttonPadding: const EdgeInsets.only(
-                                    left: 20, right: 20, bottom: 20),
-                                actions: [
-                                  SizedBox(
-                                    width: double.maxFinite,
-                                    height: 50,
-                                    child: MRoundedButton('Done', () {
-                                      Navigator.of(context).pop();
-                                    }),
-                                  )
-                                ],
-                                content: MPicture(
-                                    url: leftHand
-                                        ? leftHandPrints[index]
-                                                ?.upload
-                                                ?.accessUrl ??
-                                            ""
-                                        : rightHandPrints[index]
-                                                ?.upload
-                                                ?.accessUrl ??
-                                            ""),
-                              ),
-                            );
+                            _openPreview(index, leftHand);
                           },
                           child: SizedBox(
                             width: 30,

@@ -162,6 +162,41 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
     }
   }
 
+  _redirectToSource(bool fromGallery, int index) async {
+    String? file;
+    if (fromGallery) {
+      file = await PickerUtil.pickImage(addCropper: false);
+    } else {
+      file = await PickerUtil.captureImage(addCropper: false);
+    }
+
+    if (file != null && file != "" && mounted) {
+      Navigator.of(context)
+          .pushNamed(processPrintRoute,
+              arguments: ProcessPrintArgs(filePath: file))
+          .then((value) {
+        String? newPath = value as String?;
+        if (newPath != null) {
+          printFiles[index] = newPath;
+          _checkValidity();
+        }
+      });
+    }
+  }
+
+  _openSource(bool fromGallery, int index) {
+    if (PrefUtil().showFingerprintTips) {
+      Navigator.of(context).pushNamed(tipsRoute).then((value) async {
+        bool? res = value as bool?;
+        if (res == true) {
+          _redirectToSource(fromGallery, index);
+        }
+      });
+    } else {
+      _redirectToSource(fromGallery, index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -262,44 +297,9 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                 child: _buildTileWidget(
                                     index, fingerNames[index], () async {
                                   if (printFiles[index] == null) {
-                                    if (widget.arguments.mode == 'gallery') {
-                                      String? file = await PickerUtil.pickImage(
-                                          addCropper: false);
-                                      if (file != null &&
-                                          file != "" &&
-                                          mounted) {
-                                        Navigator.of(context)
-                                            .pushNamed(processPrintRoute,
-                                                arguments: ProcessPrintArgs(
-                                                    filePath: file))
-                                            .then((value) {
-                                          String? newPath = value as String?;
-                                          if (newPath != null) {
-                                            printFiles[index] = newPath;
-                                            _checkValidity();
-                                          }
-                                        });
-                                      }
-                                    } else {
-                                      String? file =
-                                          await PickerUtil.captureImage(
-                                              addCropper: false);
-                                      if (file != null &&
-                                          file != "" &&
-                                          mounted) {
-                                        Navigator.of(context)
-                                            .pushNamed(processPrintRoute,
-                                                arguments: ProcessPrintArgs(
-                                                    filePath: file))
-                                            .then((value) {
-                                          String? newPath = value as String?;
-                                          if (newPath != null) {
-                                            printFiles[index] = newPath;
-                                            _checkValidity();
-                                          }
-                                        });
-                                      }
-                                    }
+                                    _openSource(
+                                        widget.arguments.mode == 'gallery',
+                                        index);
                                   }
                                 }, true),
                               ),

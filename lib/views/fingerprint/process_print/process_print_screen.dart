@@ -79,8 +79,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
             fileBytes: imageBytes ?? (await File(imagePath).readAsBytes()))
         .then((value) async {
       FingerprintProcessingResponse? apiResponse =
-          ApiService.processResponse(value, context)
-              as FingerprintProcessingResponse?;
+          value.snapshot as FingerprintProcessingResponse?;
       setState(() => _isLoadingPythonEnhance = false);
       if (apiResponse != null) {
         if (apiResponse.success == true) {

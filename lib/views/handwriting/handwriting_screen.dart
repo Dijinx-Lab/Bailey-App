@@ -1,10 +1,12 @@
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/handwriting/handwriting/handwriting.dart';
 import 'package:bailey/models/api/handwriting/list_response/handwriting_list_response.dart';
 import 'package:bailey/models/api/handwriting/response/handwriting_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
 import 'package:bailey/models/api/user/user/user.dart';
+import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -154,6 +156,20 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
     });
   }
 
+  _openPreview(Handwriting writing) {
+    int index = _writings.indexWhere((e) => e.id == writing.id);
+    List<String> paths =
+        _writings.map((e) => e.upload?.accessUrl ?? "").toList();
+    Navigator.of(context).pushNamed(
+      previewImageRoute,
+      arguments: PreviewImageArgs(
+        initialIndex: index == -1 ? 0 : index,
+        titles: [],
+        imageUrls: paths,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -259,8 +275,11 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
                                 itemPadding: 4,
                                 itemBuilder: (val) => Stack(
                                   children: [
-                                    MPicture(
-                                      url: val.upload?.accessUrl ?? "",
+                                    GestureDetector(
+                                      onTap: () => _openPreview(val),
+                                      child: MPicture(
+                                        url: val.upload?.accessUrl ?? "",
+                                      ),
                                     ),
                                     Positioned(
                                       top: 8,

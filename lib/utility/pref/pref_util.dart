@@ -62,4 +62,11 @@ class PrefUtil {
       _sharedPreferences!.setString(userDetails, '');
     }
   }
+
+  bool get showFingerprintTips =>
+      _sharedPreferences!.getBool(showProcessingTips) ?? true;
+
+  set showFingerprintTips(bool value) {
+    _sharedPreferences!.setBool(showProcessingTips, value);
+  }
 }

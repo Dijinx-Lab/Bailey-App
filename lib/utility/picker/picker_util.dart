@@ -79,7 +79,8 @@ class PickerUtil {
     return imagePaths;
   }
 
-  static Future<String?> pickImage({bool addCropper = true}) async {
+  static Future<String?> pickImage(
+      {bool addCropper = true, bool compress = true}) async {
     String imagePath = '';
     if (Platform.isAndroid) {
       await Permission.storage.request();
@@ -88,7 +89,7 @@ class PickerUtil {
     }
     dynamic xfile = await _picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 40,
+      imageQuality: compress ? 40 : 80,
     );
     if (xfile != null && addCropper) {
       xfile = await crop(filePath: xfile.path);
@@ -102,7 +103,8 @@ class PickerUtil {
     return imagePath;
   }
 
-  static Future<String?> captureImage({bool addCropper = true}) async {
+  static Future<String?> captureImage(
+      {bool addCropper = true, bool compress = true}) async {
     String imagePath = '';
 
     await Permission.camera.request();
@@ -110,7 +112,7 @@ class PickerUtil {
     dynamic xfile = await _picker.pickImage(
       preferredCameraDevice: CameraDevice.rear,
       source: ImageSource.camera,
-      imageQuality: 40,
+      imageQuality: compress ? 40 : 80,
     );
     if (xfile != null && addCropper) {
       xfile = await crop(filePath: xfile.path);
@@ -124,7 +126,6 @@ class PickerUtil {
   }
 
   static Future<CroppedFile?> crop({required String filePath}) async {
-    
     CroppedFile? cfile = await _cropper.cropImage(
         sourcePath: filePath,
         cropStyle: CropStyle.rectangle,

@@ -1,10 +1,12 @@
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/photo/list_response/photo_list_response.dart';
 import 'package:bailey/models/api/photo/photo/photo.dart';
 import 'package:bailey/models/api/photo/response/photo_response.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
 import 'package:bailey/models/api/user/user/user.dart';
+import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -181,6 +183,19 @@ class _PhotoScreenState extends State<PhotoScreen> {
     }
   }
 
+  _openPreview(Photo photo) {
+    int index = _photos.indexWhere((e) => e.id == photo.id);
+    List<String> paths = _photos.map((e) => e.upload?.accessUrl ?? "").toList();
+    Navigator.of(context).pushNamed(
+      previewImageRoute,
+      arguments: PreviewImageArgs(
+        initialIndex: index == -1 ? 0 : index,
+        titles: [],
+        imageUrls: paths,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -256,8 +271,11 @@ class _PhotoScreenState extends State<PhotoScreen> {
                                 itemPadding: 4,
                                 itemBuilder: (val) => Stack(
                                   children: [
-                                    MPicture(
-                                      url: val.upload?.accessUrl ?? "",
+                                    GestureDetector(
+                                      onTap: () => _openPreview(val),
+                                      child: MPicture(
+                                        url: val.upload?.accessUrl ?? "",
+                                      ),
                                     ),
                                     Positioned(
                                       top: 8,
