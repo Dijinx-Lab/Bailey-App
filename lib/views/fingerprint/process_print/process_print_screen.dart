@@ -56,14 +56,14 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
 
         await file.writeAsBytes(imageBytes!);
       } else {
-        ToastUtils.showCustomSnackbar(
-            context: context,
-            contentText: localRembgResultModel.errorMessage ?? "",
-            type: "fail");
+        // ToastUtils.showCustomSnackbar(
+        //     context: context,
+        //     contentText: localRembgResultModel.errorMessage ?? "",
+        //     type: "fail");
       }
     } catch (e) {
-      ToastUtils.showCustomSnackbar(
-          context: context, contentText: e.toString(), type: "fail");
+      // ToastUtils.showCustomSnackbar(
+      //     context: context, contentText: e.toString(), type: "fail");
       print(e);
     }
     setState(() {
