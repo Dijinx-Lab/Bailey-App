@@ -13,6 +13,8 @@ import 'package:bailey/widgets/loading/custom_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:image_editor_plus/image_editor_plus.dart';
+import 'package:image_editor_plus/options.dart';
 import 'package:local_rembg/local_rembg.dart';
 import 'package:convert/convert.dart';
 import 'package:mime/mime.dart';
@@ -32,6 +34,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
   Uint8List? imageBytes;
   bool _isLoadingBgRemoval = false;
   bool _isLoadingPythonEnhance = false;
+  bool _isAiProcessed = false;
 
   @override
   initState() {
@@ -70,11 +73,13 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       _isLoadingBgRemoval = false;
     });
     await Future.delayed(Durations.long1);
-    _processFingerprint();
+    // _processFingerprint();
   }
 
   _processFingerprint() async {
-    setState(() => _isLoadingPythonEnhance = true);
+    setState(() {
+      _isLoadingPythonEnhance = true;
+    });
     ApiService.prcoessPrint(
             fileBytes: imageBytes ?? (await File(imagePath).readAsBytes()))
         .then((value) async {
@@ -85,7 +90,9 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
         if (apiResponse.success == true) {
           String hexImage = apiResponse.data?.processedImage ?? "";
           imageBytes = Uint8List.fromList(hex.decode(hexImage));
-          setState(() {});
+          setState(() {
+            _isAiProcessed = true;
+          });
         } else {
           ToastUtils.showCustomSnackbar(
               context: context,
@@ -175,22 +182,43 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                   ),
                   IconButton(
                     onPressed: () async {
-                      String filePath =
-                          await convertUint8ListToFile(imageBytes!);
-                      CroppedFile? xfile =
-                          await PickerUtil.crop(filePath: filePath);
-                      print(xfile?.path);
-                      if (xfile != null) {
-                        imagePath = xfile.path;
-                        imageBytes = null;
+                      Uint8List bytes =
+                          imageBytes ?? await File(imagePath).readAsBytes();
+                      final editedImage = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ImageEditor(
+                            image: bytes,
+                            outputFormat: OutputFormat.png,
+                            blurOption: null,
+                            brushOption: null,
+                            emojiOption: null,
+                            textOption: null,
+                          ),
+                        ),
+                      );
+
+                      if (editedImage != null) {
+                        imagePath = "";
+                        imageBytes = editedImage;
                         setState(() {});
                       }
+                      // String filePath =
+                      //     await convertUint8ListToFile(imageBytes!);
+                      // CroppedFile? xfile =
+                      //     await PickerUtil.crop(filePath: filePath);
+                      // print(xfile?.path);
+                      // if (xfile != null) {
+                      //   imagePath = xfile.path;
+                      //   imageBytes = null;
+                      //   setState(() {});
+                      // }
                     },
                     visualDensity: VisualDensity.compact,
                     icon: const Icon(
-                      Icons.crop,
+                      Icons.edit_note_sharp,
                       color: ColorStyle.whiteColor,
-                      size: 20,
+                      size: 30,
                     ),
                   ),
                 ]),
@@ -294,6 +322,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                                   setState(() {
                                     imageBytes = null;
                                     imagePath = file;
+                                    _isAiProcessed = false;
                                   });
                                   _removeImageBg();
                                 }
@@ -304,6 +333,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                                   setState(() {
                                     imageBytes = null;
                                     imagePath = file;
+                                    _isAiProcessed = false;
                                   });
                                   _removeImageBg();
                                 }
@@ -335,39 +365,65 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                           ),
                           TextButton(
                             onPressed: () async {
-                              if (imageBytes != null) {
-                                String filePath =
-                                    await convertUint8ListToFile(imageBytes!);
-                                if (context.mounted) {
-                                  Navigator.of(context).pop(filePath);
-                                }
+                              if (!_isAiProcessed) {
+                                _processFingerprint();
                               } else {
-                                Navigator.of(context).pop(imagePath);
+                                if (imageBytes != null) {
+                                  String filePath =
+                                      await convertUint8ListToFile(imageBytes!);
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop(filePath);
+                                  }
+                                } else {
+                                  Navigator.of(context).pop(imagePath);
+                                }
                               }
                             },
-                            child: const SizedBox(
-                              width: 70,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.check,
-                                    color: ColorStyle.whiteColor,
-                                    size: 18,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    'Done',
-                                    style: TextStyle(
-                                      color: ColorStyle.whiteColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            child: SizedBox(
+                                width: 80,
+                                child: _isAiProcessed
+                                    ? const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.check,
+                                            color: ColorStyle.whiteColor,
+                                            size: 18,
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            'Done',
+                                            style: TextStyle(
+                                              color: ColorStyle.whiteColor,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Continue',
+                                            style: TextStyle(
+                                              color: ColorStyle.whiteColor,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: 5,
+                                          ),
+                                          Icon(
+                                            Icons.arrow_forward,
+                                            color: ColorStyle.whiteColor,
+                                            size: 18,
+                                          ),
+                                        ],
+                                      )),
                           ),
                         ],
                       )),

@@ -32,46 +32,46 @@ class NavigatorRoutes {
   static Route<dynamic> allRoutes(RouteSettings settings) {
     Widget page = _getPageForRoute(settings.name, settings.arguments);
 
-    switch (settings.name) {
-      case initialRouteWithNoArgs:
-        page = const SplashScreen();
-      case onboardingRoute:
-        page = const OnboardingScreen();
-      case signinRoute:
-        page = const SignInScreen();
-      case signupRoute:
-        page = const SignUpScreen();
-      case forgotPasswordRoute:
-        page = const ForgotPasswordScreen();
-      case changePasswordRoute:
-        page = ChangePasswordScreen(
-          arguments: settings.arguments as ChangePasswordArgs,
-        );
-      case baseRoute:
-        page = const BaseScreen();
-      case pickHandRoute:
-        page = PickHandScreen(
-          arguments: settings.arguments as PickHandArgs,
-        );
-      case pickFingerRoute:
-        page = PickFingerScreen(
-          arguments: settings.arguments as PickFingerArgs,
-        );
-      case processPrintRoute:
-        page = ProcessPrintScreen(
-          arguments: settings.arguments as ProcessPrintArgs,
-        );
-      case successRoute:
-        page = const SuccessfulScanScreen();
-      case viewPrintsRoute:
-        page = const ViewPrintsScreen();
-      case photosRoute:
-        page = const PhotoScreen();
-      case handwritingsRoute:
-        page = const HandwritingScreen();
-      case tipsRoute:
-        page = const TipsScreen();
-    }
+    // switch (settings.name) {
+    //   case initialRouteWithNoArgs:
+    //     page = const SplashScreen();
+    //   case onboardingRoute:
+    //     page = const OnboardingScreen();
+    //   case signinRoute:
+    //     page = const SignInScreen();
+    //   case signupRoute:
+    //     page = const SignUpScreen();
+    //   case forgotPasswordRoute:
+    //     page = const ForgotPasswordScreen();
+    //   case changePasswordRoute:
+    //     page = ChangePasswordScreen(
+    //       arguments: settings.arguments as ChangePasswordArgs,
+    //     );
+    //   case baseRoute:
+    //     page = const BaseScreen();
+    //   case pickHandRoute:
+    //     page = PickHandScreen(
+    //       arguments: settings.arguments as PickHandArgs,
+    //     );
+    //   case pickFingerRoute:
+    //     page = PickFingerScreen(
+    //       arguments: settings.arguments as PickFingerArgs,
+    //     );
+    //   case processPrintRoute:
+    //     page = ProcessPrintScreen(
+    //       arguments: settings.arguments as ProcessPrintArgs,
+    //     );
+    //   case successRoute:
+    //     page = const SuccessfulScanScreen();
+    //   case viewPrintsRoute:
+    //     page = const ViewPrintsScreen();
+    //   case photosRoute:
+    //     page = const PhotoScreen();
+    //   case handwritingsRoute:
+    //     page = const HandwritingScreen();
+    //   case tipsRoute:
+    //     page = const TipsScreen();
+    // }
 
     if (upTransitionRoutes.contains(settings.name)) {
       return upTransition(page, settings);

@@ -149,6 +149,7 @@ class _SignInScreenState extends State<SignInScreen> {
           children: [
             Image.asset(
               'assets/images/signin_image.png',
+              width: double.maxFinite,
               height: MediaQuery.of(context).size.height * .6,
               fit: BoxFit.cover,
             ),

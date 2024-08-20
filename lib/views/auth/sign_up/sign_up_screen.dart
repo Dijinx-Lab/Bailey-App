@@ -62,7 +62,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   _signUpWithEmail() async {
     String name = _nameController.text.trim();
-    String email = _emailController.text;
+    String email = _emailController.text.trim();
     String password = _passwordController.text;
     String cPassword = _confirmPasswordController.text;
 
@@ -107,6 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           children: [
             Image.asset(
               'assets/images/signup_image.png',
+              width: double.maxFinite,
               height: MediaQuery.of(context).size.height * .6,
               fit: BoxFit.cover,
             ),
