@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/fingerprint/processing_response/fingerprint_processing_response.dart';
+import 'package:bailey/models/args/editor/editor_args/editor_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -12,9 +14,6 @@ import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dar
 import 'package:bailey/widgets/loading/custom_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_editor_plus/image_editor_plus.dart';
-import 'package:image_editor_plus/options.dart';
 import 'package:local_rembg/local_rembg.dart';
 import 'package:convert/convert.dart';
 import 'package:mime/mime.dart';
@@ -40,7 +39,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
   initState() {
     imagePath = widget.arguments.filePath;
     super.initState();
-    Future.delayed(Durations.long1).then((val) => _removeImageBg());
+    //Future.delayed(Durations.long1).then((val) => _removeImageBg());
   }
 
   _removeImageBg() async {
@@ -48,10 +47,16 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       setState(() {
         _isLoadingBgRemoval = true;
       });
+      print(imagePath);
+      if (imagePath == "") {
+        imagePath = await convertUint8ListToFile(imageBytes!);
+      }
+      print(imagePath);
       LocalRembgResultModel localRembgResultModel =
           await LocalRembg.removeBackground(
         imagePath: imagePath,
       );
+      // print('rembg status ${localRembgResultModel.status}');
       if (localRembgResultModel.status == 1) {
         imageBytes = Uint8List.fromList(localRembgResultModel.imageBytes!);
 
@@ -73,7 +78,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       _isLoadingBgRemoval = false;
     });
     await Future.delayed(Durations.long1);
-    // _processFingerprint();
+    _processFingerprint();
   }
 
   _processFingerprint() async {
@@ -139,11 +144,11 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       fileExtension = '.$ext';
     }
 
+    if (fileExtension == ".jpe") fileExtension = ".jpg";
+
     // Construct the file path using the unique ID and optional extension
     String filePath =
         '$directoryPath/$uniqueId${DateTime.now().toIso8601String()}$fileExtension';
-
-    print(filePath);
 
     final file = File(filePath);
     try {
@@ -184,25 +189,24 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                     onPressed: () async {
                       Uint8List bytes =
                           imageBytes ?? await File(imagePath).readAsBytes();
-                      final editedImage = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ImageEditor(
-                            image: bytes,
-                            outputFormat: OutputFormat.png,
-                            blurOption: null,
-                            brushOption: null,
-                            emojiOption: null,
-                            textOption: null,
-                          ),
-                        ),
-                      );
 
-                      if (editedImage != null) {
-                        imagePath = "";
-                        imageBytes = editedImage;
-                        setState(() {});
-                      }
+                      Navigator.of(context)
+                          .pushNamed(editorRoute,
+                              arguments: EditorArgs(imageData: bytes))
+                          .then((res) {
+                        Uint8List? editedImage = res as Uint8List?;
+                        if (editedImage != null) {
+                          imagePath = "";
+                          imageBytes = editedImage;
+                          setState(() {});
+                        }
+                      });
+
+                      // if (editedImage != null) {
+                      //   imagePath = "";
+                      //   imageBytes = editedImage;
+                      //   setState(() {});
+                      // }
                       // String filePath =
                       //     await convertUint8ListToFile(imageBytes!);
                       // CroppedFile? xfile =
@@ -324,7 +328,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                                     imagePath = file;
                                     _isAiProcessed = false;
                                   });
-                                  _removeImageBg();
+                                  // _removeImageBg();
                                 }
                               } else if (source == 'camera') {
                                 String? file = await PickerUtil.captureImage(
@@ -335,7 +339,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                                     imagePath = file;
                                     _isAiProcessed = false;
                                   });
-                                  _removeImageBg();
+                                  // _removeImageBg();
                                 }
                               }
                             },
@@ -366,7 +370,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                           TextButton(
                             onPressed: () async {
                               if (!_isAiProcessed) {
-                                _processFingerprint();
+                                _removeImageBg();
                               } else {
                                 if (imageBytes != null) {
                                   String filePath =

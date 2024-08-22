@@ -1,5 +1,6 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
+import 'package:bailey/models/args/editor/editor_args/editor_args.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/models/args/preview_image/preview_image_args.dart';
@@ -7,6 +8,7 @@ import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/views/auth/change_password/change_password_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
 import 'package:bailey/views/base/base_screen.dart';
+import 'package:bailey/views/editor/image_editor_screen.dart';
 import 'package:bailey/views/fingerprint/process_print/process_print_screen.dart';
 import 'package:bailey/views/fingerprint/tips/tips_screen.dart';
 import 'package:bailey/views/fingerprint/view_prints/view_prints_screen.dart';
@@ -31,47 +33,6 @@ class NavigatorRoutes {
 
   static Route<dynamic> allRoutes(RouteSettings settings) {
     Widget page = _getPageForRoute(settings.name, settings.arguments);
-
-    // switch (settings.name) {
-    //   case initialRouteWithNoArgs:
-    //     page = const SplashScreen();
-    //   case onboardingRoute:
-    //     page = const OnboardingScreen();
-    //   case signinRoute:
-    //     page = const SignInScreen();
-    //   case signupRoute:
-    //     page = const SignUpScreen();
-    //   case forgotPasswordRoute:
-    //     page = const ForgotPasswordScreen();
-    //   case changePasswordRoute:
-    //     page = ChangePasswordScreen(
-    //       arguments: settings.arguments as ChangePasswordArgs,
-    //     );
-    //   case baseRoute:
-    //     page = const BaseScreen();
-    //   case pickHandRoute:
-    //     page = PickHandScreen(
-    //       arguments: settings.arguments as PickHandArgs,
-    //     );
-    //   case pickFingerRoute:
-    //     page = PickFingerScreen(
-    //       arguments: settings.arguments as PickFingerArgs,
-    //     );
-    //   case processPrintRoute:
-    //     page = ProcessPrintScreen(
-    //       arguments: settings.arguments as ProcessPrintArgs,
-    //     );
-    //   case successRoute:
-    //     page = const SuccessfulScanScreen();
-    //   case viewPrintsRoute:
-    //     page = const ViewPrintsScreen();
-    //   case photosRoute:
-    //     page = const PhotoScreen();
-    //   case handwritingsRoute:
-    //     page = const HandwritingScreen();
-    //   case tipsRoute:
-    //     page = const TipsScreen();
-    // }
 
     if (upTransitionRoutes.contains(settings.name)) {
       return upTransition(page, settings);
@@ -117,6 +78,10 @@ class NavigatorRoutes {
         return const TipsScreen();
       case previewImageRoute:
         return PreviewImageScreen(arguments: arguments as PreviewImageArgs);
+      case editorRoute:
+        return ImageEditorScreen(
+          arguments: arguments as EditorArgs,
+        );
       default:
         return const SplashScreen();
     }

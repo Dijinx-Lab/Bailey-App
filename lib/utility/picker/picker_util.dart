@@ -4,13 +4,13 @@ import 'dart:typed_data';
 
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
+// import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PickerUtil {
   static final ImagePicker _picker = ImagePicker();
-  static final ImageCropper _cropper = ImageCropper();
+  // static final ImageCropper _cropper = ImageCropper();
 
   static Future<String> converToBase64(String imagePath) async {
     try {
@@ -92,7 +92,7 @@ class PickerUtil {
       imageQuality: compress ? 40 : 80,
     );
     if (xfile != null && addCropper) {
-      xfile = await crop(filePath: xfile.path);
+      // xfile = await crop(filePath: xfile.path);
     }
 
     if (xfile != null) {
@@ -115,7 +115,7 @@ class PickerUtil {
       imageQuality: compress ? 40 : 80,
     );
     if (xfile != null && addCropper) {
-      xfile = await crop(filePath: xfile.path);
+      // xfile = await crop(filePath: xfile.path);
     }
     if (xfile != null) {
       if (await File(xfile.path).exists()) {
@@ -125,15 +125,15 @@ class PickerUtil {
     return imagePath;
   }
 
-  static Future<CroppedFile?> crop({required String filePath}) async {
-    CroppedFile? cfile = await _cropper.cropImage(
-        sourcePath: filePath,
-        cropStyle: CropStyle.rectangle,
-        compressQuality: 100,
-        compressFormat: ImageCompressFormat.png,
-        uiSettings: [IOSUiSettings(), AndroidUiSettings()]);
-    return cfile;
-  }
+  // static Future<CroppedFile?> crop({required String filePath}) async {
+  //   CroppedFile? cfile = await _cropper.cropImage(
+  //       sourcePath: filePath,
+  //       cropStyle: CropStyle.rectangle,
+  //       compressQuality: 100,
+  //       compressFormat: ImageCompressFormat.png,
+  //       uiSettings: [IOSUiSettings(), AndroidUiSettings()]);
+  //   return cfile;
+  // }
 
   static Future<bool> isFileSmallerThan(
       String filePath, int maxSizeInMB) async {

@@ -17,3 +17,4 @@ const String photosRoute = '/photos';
 const String handwritingsRoute = '/handwritings';
 const String tipsRoute = '/tips';
 const String previewImageRoute = '/preview';
+const String editorRoute = '/editor';

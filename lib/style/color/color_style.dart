@@ -62,6 +62,7 @@ class ColorStyle {
     cupertinoOverrideTheme: const CupertinoThemeData(
       textTheme: CupertinoTextThemeData(),
     ),
+   
   );
 
   static const primaryColor = Color(0xFFFFFFFF);

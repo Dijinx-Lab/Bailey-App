@@ -92,9 +92,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
   _signInWithGoogle() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    String fcmToken = await _getFcmToken() ?? "x";
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
-
+    String fcmToken = await _getFcmToken() ?? "x";
     AuthUtil.signInWithGoogle().then((userCredential) {
       if (userCredential == null) {
         SmartDialog.dismiss();
@@ -110,6 +109,57 @@ class _SignInScreenState extends State<SignInScreen> {
               name: name,
               googleId: googleId,
               appleId: null,
+              fcmToken: fcmToken)
+          .then((value) async {
+        SmartDialog.dismiss();
+        if (value.error == null) {
+          UserResponse? apiResponse =
+              ApiService.processResponse(value, context) as UserResponse?;
+          if (apiResponse != null) {
+            if (apiResponse.success == true) {
+              PrefUtil().isLoggedIn = true;
+              PrefUtil().rememberMe = true;
+              PrefUtil().currentUser = apiResponse.data?.user;
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+            } else {
+              ToastUtils.showCustomSnackbar(
+                  context: context,
+                  contentText: apiResponse.message ?? "",
+                  type: "fail");
+            }
+          }
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context, contentText: value.error ?? "", type: "fail");
+        }
+      });
+    });
+  }
+
+  _signInWithApple() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    String fcmToken = await _getFcmToken() ?? "x";
+    AuthUtil.signInWithApple().then((appleUserCredential) {
+      if (appleUserCredential == null) {
+        SmartDialog.dismiss();
+        return;
+      }
+      if (appleUserCredential.userCredential.user == null) {
+        SmartDialog.dismiss();
+        return;
+      }
+      String email = appleUserCredential.userCredential.user!.email ??
+          appleUserCredential.email;
+      String name = appleUserCredential.userCredential.user!.displayName ??
+          appleUserCredential.fullName;
+      String appleId = appleUserCredential.userCredential.user!.uid;
+      ApiService.sso(
+              email: email,
+              name: name,
+              googleId: null,
+              appleId: appleId,
               fcmToken: fcmToken)
           .then((value) async {
         SmartDialog.dismiss();
@@ -321,7 +371,7 @@ class _SignInScreenState extends State<SignInScreen> {
                               ? Container()
                               : Expanded(
                                   child: TextButton(
-                                    onPressed: () {},
+                                    onPressed: () => _signInWithApple(),
                                     child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
