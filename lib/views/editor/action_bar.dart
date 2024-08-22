@@ -41,7 +41,7 @@ class _ActionBarState extends State<ActionBar> {
               icon: const Icon(Icons.arrow_back),
               onPressed: () => widget.onBack(),
             ),
-            Spacer(),
+            const Spacer(),
             if (widget.canUndo != null && widget.onUndo != null)
               Opacity(
                 opacity: widget.canUndo! ? 1 : 0.4,

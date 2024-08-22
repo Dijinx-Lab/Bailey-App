@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'dart:ui';
-import 'package:bailey/models/args/editor/edit_history/edit_history.dart';
 import 'package:bailey/models/args/editor/editor_args/editor_args.dart';
 import 'package:bailey/models/args/editor/image_editor_tab/image_editor_tab.dart';
 import 'package:bailey/style/color/color_style.dart';

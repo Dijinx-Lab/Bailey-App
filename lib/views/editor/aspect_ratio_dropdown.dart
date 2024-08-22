@@ -15,8 +15,8 @@ class AspectRatioDropdown extends StatelessWidget {
     return DropdownButton<double?>(
       value: aspectRatio,
       isDense: true,
-      underline: SizedBox(),
-      icon: SizedBox(),
+      underline: const SizedBox(),
+      icon: const SizedBox(),
       items: const [
         DropdownMenuItem(
           child: Text('Custom'),
