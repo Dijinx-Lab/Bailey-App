@@ -74,7 +74,10 @@ class LoadingUtil {
                 color: ColorStyle.whiteColor,
                 borderRadius: BorderRadius.circular(8)),
             child: Column(children: [
-              const Icon(Icons.cloud_upload_outlined),
+              const Icon(
+                Icons.cloud_upload_outlined,
+                color: ColorStyle.backgroundColor,
+              ),
               const SizedBox(
                 height: 10,
               ),
@@ -107,7 +110,10 @@ class LoadingUtil {
                 color: ColorStyle.whiteColor,
                 borderRadius: BorderRadius.circular(8)),
             child: Column(children: [
-              const Icon(Icons.cloud_upload_outlined),
+              const Icon(
+                Icons.cloud_upload_outlined,
+                color: ColorStyle.blackColor,
+              ),
               const SizedBox(
                 height: 10,
               ),

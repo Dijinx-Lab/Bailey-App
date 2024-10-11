@@ -148,11 +148,6 @@ class _ImageEditorScreenState extends State<ImageEditorScreen> {
     setState(() {});
   }
 
-  img.Color toImageColor(Color flutterColor) {
-    return img.ColorRgb8(
-        flutterColor.red, flutterColor.green, flutterColor.blue);
-  }
-
   void updateImage() {
     try {
       editedImage = baseImage.clone();

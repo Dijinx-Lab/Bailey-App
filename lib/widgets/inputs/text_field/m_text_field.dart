@@ -8,6 +8,7 @@ class MTextField extends StatelessWidget {
   final String hint;
   final String? label;
   final String? icon;
+  final Widget? iconWidget;
   final Widget? trailing;
   final bool obscuretext;
   final Color borderColor;
@@ -36,6 +37,7 @@ class MTextField extends StatelessWidget {
       this.hint = '',
       this.hintStyle,
       this.icon,
+      this.iconWidget,
       this.trailing,
       this.obscuretext = false,
       this.borderColor = ColorStyle.borderColor,
@@ -115,10 +117,9 @@ class MTextField extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: SvgPicture.asset(
-                  'assets/icons/$icon.svg',
-                  
-                ),
+                child: iconWidget ?? SvgPicture.asset(
+                        'assets/icons/$icon.svg',
+                      ),
               ),
             ),
             suffixIcon: trailing,

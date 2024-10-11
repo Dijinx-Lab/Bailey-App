@@ -1,11 +1,14 @@
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
+import 'package:bailey/models/args/code/code_args.dart';
 import 'package:bailey/models/args/editor/editor_args/editor_args.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/views/auth/change_password/change_password_screen.dart';
+import 'package:bailey/views/auth/code_verification/code_verification_screen.dart';
+import 'package:bailey/views/auth/company/company_detail_screen.dart';
 import 'package:bailey/views/auth/forgot_password/forgot_password_screen.dart';
 import 'package:bailey/views/base/base_screen.dart';
 import 'package:bailey/views/editor/image_editor_screen.dart';
@@ -21,6 +24,7 @@ import 'package:bailey/views/fingerprint/pick_finger/pick_finger_screen.dart';
 import 'package:bailey/views/fingerprint/pick_hand/pick_hand_screen.dart';
 import 'package:bailey/views/photo/photo_screen.dart';
 import 'package:bailey/views/preview_image/preview_image_screen.dart';
+import 'package:bailey/views/session/session_info_screen.dart';
 import 'package:bailey/views/success/successful_scan_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -81,6 +85,14 @@ class NavigatorRoutes {
       case editorRoute:
         return ImageEditorScreen(
           arguments: arguments as EditorArgs,
+        );
+      case companyDetailRoute:
+        return const CompanyDetailScreen();
+      case newSessionRoute:
+        return const SessionInfoScreen();
+      case verifyCodeRoute:
+        return CodeVerificationScreen(
+          args: arguments as CodeArgs,
         );
       default:
         return const SplashScreen();

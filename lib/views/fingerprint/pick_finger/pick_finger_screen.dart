@@ -1,9 +1,10 @@
 import 'dart:io';
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/fingerprint/response/fingerprint_response.dart';
+import 'package:bailey/models/api/session/session/session.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
-import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/args/pick_finger/pick_finger_args.dart';
 import 'package:bailey/models/args/pick_hand/pick_hand_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
@@ -62,10 +63,18 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
     setState(() {});
   }
 
-  Future<String?> _makeUpload(String path) async {
+  Future<String?> _makeUpload(String path, String fingerType) async {
     try {
-      final value =
-          await ApiService.upload(folder: 'fingerprints', filePath: path);
+      final paths = UploadService.getUploadFilePath(
+        uploadType: UploadType.fingerprint,
+        isLeftHand: widget.arguments.currentHand == "Left",
+        fingerType: fingerType,
+      );
+      final value = await ApiService.upload(
+        fileName: paths["filename"]!,
+        folder: paths["folder"]!,
+        filePath: path,
+      );
       if (mounted) {
         UploadResponse? apiResponse =
             ApiService.processResponse(value, context) as UploadResponse?;
@@ -110,7 +119,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
     for (int i = 0; i < printFiles.length; i++) {
       String? printPath = printFiles[i];
       if (printPath != null && printPath != "skip") {
-        uploadIds[i] = await _makeUpload(printPath);
+        uploadIds[i] = await _makeUpload(printPath, fingerTypes[i]);
       } else {
         uploadIds[i] = printPath;
       }
@@ -136,9 +145,10 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
         }
       }
     }
-    UserDetail? user = PrefUtil().currentUser;
-    user?.fingerprintsAdded = true;
-    PrefUtil().currentUser = user;
+    Session? session = PrefUtil().currentSession;
+    session?.fingerprintsAdded = true;
+    PrefUtil().currentSession = session;
+
     BaseScreen.eventBus.fire(RefreshHomeEvent());
     SmartDialog.dismiss();
     if (mounted) {
@@ -156,7 +166,6 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
           ),
         );
       } else {
-        PrefUtil().currentUser?.fingerprintsAdded = true;
         Navigator.of(context).pushNamed(successRoute);
       }
     }

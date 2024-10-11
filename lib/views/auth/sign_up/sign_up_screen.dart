@@ -1,6 +1,8 @@
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
+import 'package:bailey/models/api/link/link_response.dart';
 import 'package:bailey/models/api/user/response/user_response.dart';
+import 'package:bailey/models/args/code/code_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/misc/misc.dart';
@@ -13,6 +15,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -84,8 +87,42 @@ class _SignUpScreenState extends State<SignUpScreen> {
           PrefUtil().isLoggedIn = true;
           PrefUtil().rememberMe = true;
           PrefUtil().currentUser = apiResponse.data?.user;
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+          Navigator.of(context).pushNamed(verifyCodeRoute,
+              arguments: CodeArgs(
+                email: PrefUtil().currentUser!.email!,
+                code: null,
+                forPassword: false,
+              ));
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      }
+    });
+  }
+
+  _getTermsLink() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+
+    ApiService.getTermsLink().then((value) async {
+      SmartDialog.dismiss();
+      LinkResponse? apiResponse =
+          ApiService.processResponse(value, context) as LinkResponse?;
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          String? link = apiResponse.data?.link;
+          if (link != null && await canLaunch(link)) {
+            await launch(link); // Open link in browser
+          } else {
+            ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: "Unable to open the link",
+              type: "fail",
+            );
+          }
         } else {
           ToastUtils.showCustomSnackbar(
               context: context,
@@ -210,7 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           Expanded(
                             child: GestureDetector(
-                              onTap: () {},
+                              onTap: () => _getTermsLink(),
                               child: Text.rich(
                                 style: TypeStyle.body,
                                 TextSpan(
@@ -258,47 +295,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       const SizedBox(height: 15),
-                      InkWell(
-                        onTap: () => (),
-                        child: IntrinsicHeight(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Expanded(
-                                child: Divider(
-                                  color: ColorStyle.borderColor,
-                                ),
-                              ),
-                              Text(
-                                '\t\tor\t\t',
-                                style: TypeStyle.body,
-                              ),
-                              const Expanded(
-                                child: Divider(
-                                  color: ColorStyle.borderColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      InkWell(
-                        onTap: () => (),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Sign up with socials ',
-                              style: TypeStyle.body,
-                            ),
-                            SvgPicture.asset(
-                              'assets/icons/ic_next.svg',
-                            ),
-                          ],
-                        ),
-                      ),
                     ],
                   ),
                 ),

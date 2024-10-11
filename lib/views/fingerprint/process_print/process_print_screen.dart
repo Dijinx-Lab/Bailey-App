@@ -189,7 +189,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                     onPressed: () async {
                       Uint8List bytes =
                           imageBytes ?? await File(imagePath).readAsBytes();
-
+  
                       Navigator.of(context)
                           .pushNamed(editorRoute,
                               arguments: EditorArgs(imageData: bytes))

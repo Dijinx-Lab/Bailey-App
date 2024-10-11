@@ -24,19 +24,30 @@ class ApiKeys {
   static const addPhoto = "$baseUrl/photos/add";
   static const listPhotos = "$baseUrl/photos/list";
   static const deletePhoto = "$baseUrl/photos/delete";
+  static const deletePhotoBySession = "$baseUrl/photos/session/delete";
 
   //FINGERPRINT
   static const addPrint = "$baseUrl/prints/add";
   static const editPrint = "$baseUrl/prints/edit";
   static const listPrints = "$baseUrl/prints/list";
   static const deletePrints = "$baseUrl/prints/delete";
+  static const deletePrintBySession = "$baseUrl/prints/session/delete";
 
   //HANDWRITING
   static const addWriting = "$baseUrl/writings/add";
   static const listWritings = "$baseUrl/writings/list";
   static const deleteWriting = "$baseUrl/writings/delete";
+  static const deleteWritingBySession = "$baseUrl/writings/session/delete";
 
   //PROCESSING SERVICE
   static const processingServices =
       "https://6udu32edub.execute-api.us-west-2.amazonaws.com/prod/process/extract?rmbg=false";
+
+  //SESSION
+  static const addSession = "$baseUrl/sessions/add";
+  static const listSession = "$baseUrl/sessions/list";
+  static const deleteSession = "$baseUrl/sessions/delete";
+
+  //COMMONS
+  static const getTermsLink = "$baseUrl/commons/terms";
 }

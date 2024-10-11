@@ -31,7 +31,7 @@ class ColorStyle {
       const MaterialColor(0xFFFFFFFF, customSwatchColor);
 
   static const ColorScheme appScheme = ColorScheme(
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
     primary: ColorStyle.primaryColor,
     onPrimary: ColorStyle.whiteColor,
     secondary: ColorStyle.primaryColor,
@@ -50,7 +50,7 @@ class ColorStyle {
     colorScheme: ColorStyle.appScheme,
     primarySwatch: ColorStyle.primaryMaterialColor,
     visualDensity: VisualDensity.adaptivePlatformDensity,
-    dialogBackgroundColor: ColorStyle.blackColor,
+    dialogBackgroundColor: Colors.grey[900],
     appBarTheme:
         const AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.light),
     checkboxTheme: CheckboxThemeData(
@@ -62,7 +62,6 @@ class ColorStyle {
     cupertinoOverrideTheme: const CupertinoThemeData(
       textTheme: CupertinoTextThemeData(),
     ),
-   
   );
 
   static const primaryColor = Color(0xFFFFFFFF);

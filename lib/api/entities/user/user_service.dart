@@ -58,7 +58,7 @@ class UserService {
     try {
       var url = ApiKeys.signUp;
       var params = HashMap();
-      params["name"] = name;
+      params["contact_name"] = name;
       params["email"] = email;
       params["password"] = password;
       params["confirm_password"] = confirmPassword;
@@ -125,7 +125,7 @@ class UserService {
     try {
       var url = ApiKeys.sso;
       var params = HashMap();
-      params["name"] = name;
+      params["contact_name"] = name;
       params["email"] = email;
       params["google_id"] = googleId;
       params["apple_id"] = appleId;
@@ -185,6 +185,8 @@ class UserService {
     required String? email,
     required String? name,
     required String? fcmToken,
+    required String? companyName,
+    required String? companyLocation,
   }) async {
     try {
       var url = ApiKeys.editProfile;
@@ -193,6 +195,8 @@ class UserService {
       params["email"] = email;
       params["name"] = name;
       params["fcm_token"] = fcmToken;
+      params["company_name"] = companyName;
+      params["company_location"] = companyLocation;
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.put(
         Uri.parse(url),
@@ -256,6 +260,120 @@ class UserService {
 
       var params = HashMap();
       params["old_password"] = oldPass;
+      params["password"] = newPass;
+      params["confirm_password"] = confirmPass;
+      params.removeWhere((key, value) => value == null || value == '');
+      var response = await http.post(
+        Uri.parse(url),
+        body: json.encode(params),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      var responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
+      } else {
+        return BaseResponse(response.statusCode, null, responseBody);
+      }
+    } catch (e) {
+      return BaseResponse(null, null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> sendVerificationCode({
+    required String type,
+    required String email,
+  }) async {
+    try {
+      var url = ApiKeys.verification;
+
+      var params = HashMap();
+      params["type"] = type;
+      params["email"] = email;
+      params.removeWhere((key, value) => value == null || value == '');
+
+      var response = await http.post(
+        Uri.parse(url),
+        body: json.encode(params),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      var responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
+      } else {
+        return BaseResponse(response.statusCode, null, responseBody);
+      }
+    } catch (e) {
+      return BaseResponse(null, null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> verifyCode({
+    required String type,
+    required String email,
+    required String code,
+  }) async {
+    try {
+      var url = ApiKeys.verifyCode;
+
+      var params = HashMap();
+      params["type"] = type;
+      params["email"] = email;
+      params["code"] = code;
+      params.removeWhere((key, value) => value == null || value == '');
+
+      var response = await http.post(
+        Uri.parse(url),
+        body: json.encode(params),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      var responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
+      } else {
+        return BaseResponse(response.statusCode, null, responseBody);
+      }
+    } catch (e) {
+      return BaseResponse(null, null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> forgotPassword({
+    required String email,
+    required String newPass,
+    required String confirmPass,
+  }) async {
+    try {
+      var url = ApiKeys.forgotPassword;
+
+      var params = HashMap();
+      params["email"] = email;
       params["password"] = newPass;
       params["confirm_password"] = confirmPass;
       params.removeWhere((key, value) => value == null || value == '');

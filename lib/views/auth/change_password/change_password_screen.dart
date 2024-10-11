@@ -1,4 +1,5 @@
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
@@ -34,7 +35,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   void initState() {
-    _nameController.text = PrefUtil().currentUser?.name ?? "";
+    _nameController.text = PrefUtil().currentUser?.contactName ?? "";
     _emailController.text = PrefUtil().currentUser?.email ?? "";
     super.initState();
 
@@ -51,14 +52,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   _checkValidity() {
-    bool isNameValid = _nameController.text != PrefUtil().currentUser?.name;
+    bool isNameValid =
+        _nameController.text != PrefUtil().currentUser?.companyName;
     bool isEmailValid = _emailController.text != PrefUtil().currentUser?.email;
     bool isPwdValid = _oldPasswordController.text != "" &&
         _passwordController.text != "" &&
         _confirmPasswordController.text != "";
     isValid = widget.arguments.action == 'change_profile'
         ? (isNameValid || isEmailValid)
-        : isPwdValid;
+        : widget.arguments.action == 'forgot_pass'
+            ? _passwordController.text != "" &&
+                _confirmPasswordController.text != ""
+            : isPwdValid;
     setState(() {});
   }
 
@@ -71,7 +76,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       FocusManager.instance.primaryFocus?.unfocus();
       SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
 
-      ApiService.editProfile(email: email, name: name, fcmToken: null)
+      ApiService.editProfile(
+              email: email,
+              name: name,
+              fcmToken: null,
+              companyName: null,
+              companyLocation: null)
           .then((value) {
         SmartDialog.dismiss();
         UserResponse? apiResponse =
@@ -121,6 +131,43 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             _oldPasswordController.text = "";
             _passwordController.text = "";
             _confirmPasswordController.text = "";
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: "Password Updated",
+                type: "success");
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _forgotPassword() async {
+    try {
+      String newPassword = _passwordController.text;
+      String confirmPassword = _confirmPasswordController.text;
+
+      FocusManager.instance.primaryFocus?.unfocus();
+      SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+
+      ApiService.forgotPassword(
+        email: widget.arguments.email!,
+        newPass: newPassword,
+        confirmPass: confirmPassword,
+      ).then((value) {
+        SmartDialog.dismiss();
+        GenericResponse? apiResponse =
+            ApiService.processResponse(value, context) as GenericResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            Navigator.of(context)
+                .popUntil((e) => e.settings.name == signinRoute);
             ToastUtils.showCustomSnackbar(
                 context: context,
                 contentText: "Password Updated",
@@ -233,6 +280,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     () {
                       if (widget.arguments.action == 'change_profile') {
                         _editProfile();
+                      } else if (widget.arguments.action == 'forgot_pass') {
+                        _forgotPassword();
                       } else {
                         _changePassword();
                       }

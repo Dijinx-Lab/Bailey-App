@@ -19,6 +19,7 @@ class HandwritingService {
 
       var params = HashMap();
       params["upload_id"] = uploadId;
+      params["session_id"] = PrefUtil().currentSession?.id;
 
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.post(
@@ -50,7 +51,7 @@ class HandwritingService {
 
   Future<BaseResponse> list() async {
     try {
-      var url = ApiKeys.listWritings;
+      var url = "${ApiKeys.listWritings}?id=${PrefUtil().currentSession?.id}";
 
       var response = await http.get(
         Uri.parse(url),
@@ -81,6 +82,37 @@ class HandwritingService {
   Future<BaseResponse> delete({required String writingId}) async {
     try {
       var url = "${ApiKeys.deleteWriting}?id=$writingId";
+
+      var response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else {
+        return BaseResponse(response.statusCode, null, response.body);
+      }
+    } catch (e) {
+      return BaseResponse(
+        null,
+        null,
+        e.toString(),
+      );
+    }
+  }
+
+  Future<BaseResponse> deleteBySession({
+    required String sessionId,
+  }) async {
+    try {
+      var url = "${ApiKeys.deleteWritingBySession}?id=$sessionId";
 
       var response = await http.delete(
         Uri.parse(url),

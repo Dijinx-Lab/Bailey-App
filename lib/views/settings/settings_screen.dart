@@ -2,6 +2,7 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
+import 'package:bailey/models/api/link/link_response.dart';
 import 'package:bailey/models/api/user/response/user_response.dart';
 import 'package:bailey/models/args/change_password/change_password_args.dart';
 import 'package:bailey/style/color/color_style.dart';
@@ -15,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -102,8 +105,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         fcmToken = await _getFcmToken() ?? "x";
       }
       SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
-      ApiService.editProfile(email: null, name: null, fcmToken: fcmToken)
-          .then((value) {
+      ApiService.editProfile(
+        email: null,
+        name: null,
+        fcmToken: fcmToken,
+        companyName: null,
+        companyLocation: null,
+      ).then((value) {
         SmartDialog.dismiss();
         UserResponse? apiResponse =
             ApiService.processResponse(value, context) as UserResponse?;
@@ -122,6 +130,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (e) {
       print(e);
     }
+  }
+
+  _deleteSession(String id) async {
+    try {
+      SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+      ApiService.deleteSession(id: id).then((value) {
+        SmartDialog.dismiss();
+        GenericResponse? apiResponse =
+            ApiService.processResponse(value, context) as GenericResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            PrefUtil().currentSession = null;
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(newSessionRoute, (e) => false);
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  _getTermsLink() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+
+    ApiService.getTermsLink().then((value) async {
+      SmartDialog.dismiss();
+      LinkResponse? apiResponse =
+          ApiService.processResponse(value, context) as LinkResponse?;
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          String? link = apiResponse.data?.link;
+          if (link != null && await canLaunch(link)) {
+            await launch(link); // Open link in browser
+          } else {
+            ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: "Unable to open the link",
+              type: "fail",
+            );
+          }
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      }
+    });
   }
 
   @override
@@ -165,6 +228,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 30),
+              GestureDetector(
+                onTapDown: (TapDownDetails details) {
+                  _showSessionActions(context, details.globalPosition);
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 15,
+                  ),
+                  decoration: BoxDecoration(
+                      color: ColorStyle.blackColor,
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ColorStyle.whiteColor.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        )
+                      ]),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_history_outlined,
+                                  size: 15,
+                                  color: ColorStyle.whiteColor,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  "${PrefUtil().currentSession?.firstName} ${PrefUtil().currentSession?.lastName}",
+                                  style: TypeStyle.h3,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.date_range,
+                                  size: 15,
+                                  color: ColorStyle.secondaryTextColor,
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  DateFormat('dd MMM, yyyy').format(
+                                      PrefUtil().currentSession!.dateOfBirth!),
+                                  style: TypeStyle.body,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.more_vert,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
               _buildTileWidget('Profile', 'Edit Profile', 'ic_mail', () {
                 Navigator.of(context).pushNamed(
                   changePasswordRoute,
@@ -197,6 +327,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   switchState:
                       (PrefUtil().currentUser?.notificationsEnabled ?? false)),
               const SizedBox(height: 20),
+              _buildTileWidget('Legal', 'Terms and Conditions ', 'ic_logout',
+                  () => _getTermsLink()),
+              const SizedBox(height: 20),
               _buildTileWidget(
                   'Exit', 'Log Out ', 'ic_logout', () => _signOut()),
               const SizedBox(height: 20),
@@ -224,6 +357,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showSessionActions(BuildContext context, Offset position) {
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, 0),
+      color: Colors.grey[900],
+      items: [
+        PopupMenuItem<int>(
+          value: 1,
+          child: Text(
+            "Close Session",
+            style: TypeStyle.h3,
+          ),
+        ),
+        PopupMenuItem<int>(
+          value: 2,
+          child: Text(
+            "Delete Session",
+            style: TypeStyle.h3.copyWith(color: ColorStyle.red100Color),
+          ),
+        ),
+      ],
+    ).then((value) async {
+      if (value != null) {
+        if (value == 1) {
+          PrefUtil().currentSession = null;
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(newSessionRoute, (e) => false);
+        } else if (value == 2) {
+          OkCancelResult result = await showOkCancelAlertDialog(
+            context: context,
+            title: "Confirm",
+            message:
+                "This action is irreversible and all your data for ONLY THIS SESSION will be permanently deleted including\n\n• Your photos\n• Your handwritings\n• Your fingerprints",
+            isDestructiveAction: true,
+            okLabel: 'Delete',
+          );
+          if (result == OkCancelResult.ok) {
+            _deleteSession(PrefUtil().currentSession!.id!);
+          } else {
+            return;
+          }
+        }
+      }
+    });
+  }
+
   _buildTileWidget(String title, String subTitle, String icon, Function onTap,
       {bool? switchState}) {
     return GestureDetector(
@@ -240,12 +419,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         child: IntrinsicHeight(
           child: Row(children: [
-            SvgPicture.asset(
-              'assets/icons/$icon.svg',
-              color: (icon == 'ic_remove')
-                  ? ColorStyle.red100Color
-                  : ColorStyle.whiteColor,
-              height: 25,
+            Transform.flip(
+              flipX: title == "Legal",
+              child: SvgPicture.asset(
+                'assets/icons/$icon.svg',
+                color: (icon == 'ic_remove')
+                    ? ColorStyle.red100Color
+                    : ColorStyle.whiteColor,
+                height: 25,
+              ),
             ),
             const SizedBox(width: 10),
             const VerticalDivider(

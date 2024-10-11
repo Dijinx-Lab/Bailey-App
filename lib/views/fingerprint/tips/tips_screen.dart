@@ -61,7 +61,7 @@ class _TipsScreenState extends State<TipsScreen> {
                               ),
                               const SizedBox(height: 20),
                               _buildTipWidget(
-                                  'Please be sure to take a picture against a black/white background with atleast a meter of distance to avoid casting any shadows',
+                                  'Please be sure to take a picture against a neutral background',
                                   Icons.photo_camera_back_outlined),
                               const SizedBox(height: 20),
                               _buildTipWidget(

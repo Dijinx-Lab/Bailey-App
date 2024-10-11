@@ -1,17 +1,22 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/fingerprint/fingerprint/fingerprint.dart';
 import 'package:bailey/models/api/fingerprint/list_response/fingerprint_list_response.dart';
 import 'package:bailey/models/api/fingerprint/response/fingerprint_response.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
+import 'package:bailey/models/api/session/session/session.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
 import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
+import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/picker/picker_util.dart';
 import 'package:bailey/utility/pref/pref_util.dart';
 import 'package:bailey/utility/toast/toast_utils.dart';
+import 'package:bailey/views/base/base_screen.dart';
 import 'package:bailey/widgets/bottom_sheets/media_source/media_source_sheet.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:bailey/widgets/loading/custom_loading.dart';
@@ -57,10 +62,15 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
   @override
   void initState() {
     _tabController = TabController(length: 2, vsync: this);
+    _initPrints();
+    _getPrints();
+    super.initState();
+  }
+
+  _initPrints() {
     leftHandPrints = List.filled(5, null);
     rightHandPrints = List.filled(5, null);
     _getPrints();
-    super.initState();
   }
 
   _canEdit() {
@@ -227,11 +237,13 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
       if (leftHand) {
         uploadId = leftHandPrints[index]?.changeKey == 'skip'
             ? 'skip'
-            : await _makeUpload(leftHandPrints[index]?.changeKey ?? "");
+            : await _makeUpload(leftHandPrints[index]?.changeKey ?? "", true,
+                leftHandPrints[index]!.finger!);
       } else {
         uploadId = rightHandPrints[index]?.changeKey == 'skip'
             ? 'skip'
-            : await _makeUpload(rightHandPrints[index]?.changeKey ?? "");
+            : await _makeUpload(rightHandPrints[index]?.changeKey ?? "", false,
+                rightHandPrints[index]!.finger!);
       }
       print(uploadId);
 
@@ -268,11 +280,13 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
       if (leftHand) {
         uploadId = leftHandPrints[index]?.changeKey == 'skip'
             ? 'skip'
-            : await _makeUpload(leftHandPrints[index]?.changeKey ?? "");
+            : await _makeUpload(leftHandPrints[index]?.changeKey ?? "", true,
+                leftHandPrints[index]!.finger!);
       } else {
         uploadId = rightHandPrints[index]?.changeKey == 'skip'
             ? 'skip'
-            : await _makeUpload(rightHandPrints[index]?.changeKey ?? "");
+            : await _makeUpload(rightHandPrints[index]?.changeKey ?? "", false,
+                rightHandPrints[index]!.finger!);
       }
 
       if (uploadId == null) return null;
@@ -300,10 +314,19 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     return null;
   }
 
-  Future<String?> _makeUpload(String path) async {
+  Future<String?> _makeUpload(
+      String path, bool isLeftHand, String fingerType) async {
     try {
-      final value =
-          await ApiService.upload(folder: 'fingerprints', filePath: path);
+      final paths = UploadService.getUploadFilePath(
+        uploadType: UploadType.fingerprint,
+        isLeftHand: isLeftHand,
+        fingerType: fingerType,
+      );
+      final value = await ApiService.upload(
+        fileName: paths["filename"]!,
+        folder: paths["folder"]!,
+        filePath: path,
+      );
       if (mounted) {
         UploadResponse? apiResponse =
             ApiService.processResponse(value, context) as UploadResponse?;
@@ -352,6 +375,34 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     );
   }
 
+  _deleteBySessionId() async {
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    ApiService.deletePrintsBySession(
+      sessionId: PrefUtil().currentSession!.id!,
+    ).then((value) async {
+      GenericResponse? apiResponse =
+          ApiService.processResponse(value, context) as GenericResponse?;
+      SmartDialog.dismiss();
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          _initPrints();
+
+          Session? session = PrefUtil().currentSession;
+          session?.fingerprintsAdded = false;
+          PrefUtil().currentSession = session;
+          BaseScreen.eventBus.fire(RefreshHomeEvent());
+
+          setState(() {});
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -376,7 +427,45 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 40),
+                  IconButton(
+                    onPressed: () async {
+                      var result = await showModalActionSheet(
+                        context: context,
+                        title: "Confirm",
+                        message:
+                            "This action is irreversible and will delete all your fingerprints' data for this session. Do you wish to continue or create a new session instead?",
+                        actions: [
+                          const SheetAction(
+                            icon: Icons.lock_clock,
+                            label: 'New Session',
+                            key: 'new',
+                          ),
+                          const SheetAction(
+                              icon: Icons.delete,
+                              label: "Delete Session's Fingerprints",
+                              key: 'delete',
+                              isDestructiveAction: true),
+                          const SheetAction(
+                              icon: Icons.close,
+                              label: 'Cancel',
+                              key: 'cancel',
+                              isDefaultAction: true),
+                        ],
+                      );
+                      if (result == "delete") {
+                        _deleteBySessionId();
+                      } else if (result == "new" && context.mounted) {
+                        PrefUtil().currentSession = null;
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            newSessionRoute, (e) => false);
+                      }
+                    },
+                    visualDensity: VisualDensity.compact,
+                    icon: SvgPicture.asset(
+                      'assets/icons/ic_remove.svg',
+                      color: ColorStyle.red100Color,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),

@@ -11,15 +11,17 @@ class UploadService {
   Future<BaseResponse> upload({
     required String folder,
     required String filePath,
+    required String fileName,
   }) async {
     try {
       var url = ApiKeys.upload;
-      print(url);
-      print(filePath);
+      // print(url);
+      // print(filePath);
       var request = http.MultipartRequest("POST", Uri.parse(url));
       request.headers["authorization"] =
           "Bearer ${PrefUtil().currentUser!.token!}";
       request.fields["folder"] = folder;
+      request.fields["file_name"] = fileName;
 
       http.MultipartFile uploadFile = await http.MultipartFile.fromPath(
           'file', filePath,
@@ -31,16 +33,15 @@ class UploadService {
       if (value.statusCode == 200) {
         final response = await http.Response.fromStream(value);
         var responseBody = json.decode(response.body);
-        print(response.body);
+
         UploadResponse parsedResponse = UploadResponse.fromJson(responseBody);
         return BaseResponse(value.statusCode, parsedResponse, null);
       } else {
         final response = await http.Response.fromStream(value);
-        print(response.body);
+
         return BaseResponse(value.statusCode, null, response.body);
       }
     } catch (e) {
-      print(e.toString());
       return BaseResponse(null, null, e.toString());
     }
   }
@@ -70,4 +71,36 @@ class UploadService {
             'application', 'octet-stream'); // Default media type
     }
   }
+
+  static Map<String, String> getUploadFilePath(
+      {required UploadType uploadType, bool? isLeftHand, String? fingerType}) {
+    switch (uploadType) {
+      case UploadType.fingerprint:
+        return {
+          "filename": "${isLeftHand == true ? "left" : "right"}-$fingerType",
+          "folder":
+              "sessions/${PrefUtil().currentUser?.companyName}-${PrefUtil().currentUser?.id}/${PrefUtil().currentSession?.firstName}-${PrefUtil().currentSession?.lastName}-${PrefUtil().currentSession?.dateOfBirth!.toIso8601String()}-${PrefUtil().currentSession?.id}/fingerprints"
+        };
+      case UploadType.photo:
+        return {
+          "filename": DateTime.now()
+              .toIso8601String()
+              .replaceAll(":", "")
+              .replaceAll(".", ""),
+          "folder":
+              "sessions/${PrefUtil().currentUser?.companyName}-${PrefUtil().currentUser?.id}/${PrefUtil().currentSession?.firstName}-${PrefUtil().currentSession?.lastName}-${PrefUtil().currentSession?.dateOfBirth!.toIso8601String()}-${PrefUtil().currentSession?.id}/photos"
+        };
+      case UploadType.handwriting:
+        return {
+          "filename": DateTime.now()
+              .toIso8601String()
+              .replaceAll(":", "")
+              .replaceAll(".", ""),
+          "folder":
+              "sessions/${PrefUtil().currentUser?.companyName}-${PrefUtil().currentUser?.id}/${PrefUtil().currentSession?.firstName}-${PrefUtil().currentSession?.lastName}-${PrefUtil().currentSession?.dateOfBirth!.toIso8601String()}-${PrefUtil().currentSession?.id}/handwritings"
+        };
+    }
+  }
 }
+
+enum UploadType { fingerprint, photo, handwriting }

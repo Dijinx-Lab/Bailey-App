@@ -1,11 +1,13 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
+import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/generic/generic_response.dart';
 import 'package:bailey/models/api/photo/list_response/photo_list_response.dart';
 import 'package:bailey/models/api/photo/photo/photo.dart';
 import 'package:bailey/models/api/photo/response/photo_response.dart';
+import 'package:bailey/models/api/session/session/session.dart';
 import 'package:bailey/models/api/upload/response/upload_response.dart';
-import 'package:bailey/models/api/user/user/user.dart';
 import 'package:bailey/models/args/preview_image/preview_image_args.dart';
 import 'package:bailey/models/events/refresh_home/refresh_home_event.dart';
 import 'package:bailey/style/color/color_style.dart';
@@ -70,8 +72,12 @@ class _PhotoScreenState extends State<PhotoScreen> {
       return;
     }
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 3));
+    final paths = UploadService.getUploadFilePath(
+      uploadType: UploadType.photo,
+    );
     ApiService.upload(
-      folder: 'photos',
+      fileName: paths["filename"]!,
+      folder: paths["folder"]!,
       filePath: path,
     ).then((value) async {
       UploadResponse? apiResponse =
@@ -109,9 +115,10 @@ class _PhotoScreenState extends State<PhotoScreen> {
         if (apiResponse.success == true) {
           _photos.add(apiResponse.data!.photo!);
           if (_photos.isNotEmpty) {
-            UserDetail? user = PrefUtil().currentUser;
-            user?.photosAdded = true;
-            PrefUtil().currentUser = user;
+            Session? session = PrefUtil().currentSession;
+            session?.photosAdded = true;
+            PrefUtil().currentSession = session;
+
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
           setState(() {});
@@ -137,9 +144,37 @@ class _PhotoScreenState extends State<PhotoScreen> {
         if (apiResponse.success == true) {
           _photos.removeWhere((element) => element.id == photoId);
           if (_photos.isEmpty) {
-            UserDetail? user = PrefUtil().currentUser;
-            user?.photosAdded = false;
-            PrefUtil().currentUser = user;
+            Session? session = PrefUtil().currentSession;
+            session?.photosAdded = false;
+            PrefUtil().currentSession = session;
+            BaseScreen.eventBus.fire(RefreshHomeEvent());
+          }
+          setState(() {});
+        } else {
+          ToastUtils.showCustomSnackbar(
+              context: context,
+              contentText: apiResponse.message ?? "",
+              type: "fail");
+        }
+      }
+    });
+  }
+
+  _deleteBySessionId() async {
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    ApiService.deletePhotosBySession(
+      sessionId: PrefUtil().currentSession!.id!,
+    ).then((value) async {
+      GenericResponse? apiResponse =
+          ApiService.processResponse(value, context) as GenericResponse?;
+      SmartDialog.dismiss();
+      if (apiResponse != null) {
+        if (apiResponse.success == true) {
+          _photos.clear();
+          if (_photos.isEmpty) {
+            Session? session = PrefUtil().currentSession;
+            session?.photosAdded = false;
+            PrefUtil().currentSession = session;
             BaseScreen.eventBus.fire(RefreshHomeEvent());
           }
           setState(() {});
@@ -235,7 +270,45 @@ class _PhotoScreenState extends State<PhotoScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 40),
+                  IconButton(
+                    onPressed: () async {
+                      var result = await showModalActionSheet(
+                        context: context,
+                        title: "Confirm",
+                        message:
+                            "This action is irreversible and will delete all your photos' data for this session. Do you wish to continue or create a new session instead?",
+                        actions: [
+                          const SheetAction(
+                            icon: Icons.lock_clock,
+                            label: 'New Session',
+                            key: 'new',
+                          ),
+                          const SheetAction(
+                              icon: Icons.delete,
+                              label: "Delete Session's Photos",
+                              key: 'delete',
+                              isDestructiveAction: true),
+                          const SheetAction(
+                              icon: Icons.close,
+                              label: 'Cancel',
+                              key: 'cancel',
+                              isDefaultAction: true),
+                        ],
+                      );
+                      if (result == "delete") {
+                        _deleteBySessionId();
+                      } else if (result == "new" && context.mounted) {
+                        PrefUtil().currentSession = null;
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            newSessionRoute, (e) => false);
+                      }
+                    },
+                    visualDensity: VisualDensity.compact,
+                    icon: SvgPicture.asset(
+                      'assets/icons/ic_remove.svg',
+                      color: ColorStyle.red100Color,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 20),

@@ -1,6 +1,7 @@
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/user/response/user_response.dart';
+import 'package:bailey/models/args/code/code_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/pref/pref_util.dart';
@@ -72,8 +73,24 @@ class _SplashScreenState extends State<SplashScreen> {
       if (apiResponse != null) {
         if (apiResponse.success == true) {
           PrefUtil().currentUser = apiResponse.data?.user;
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+          if (PrefUtil().currentUser?.emailVerifiedOn == null) {
+            Navigator.of(context).pushNamedAndRemoveUntil(
+              verifyCodeRoute,
+              arguments: CodeArgs(
+                email: PrefUtil().currentUser!.email!,
+                code: null,
+                forPassword: false,
+              ),
+              (e) => false,
+            );
+          } else if (PrefUtil().currentUser?.companyName == null ||
+              PrefUtil().currentUser?.companyName == "") {
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(companyDetailRoute, (route) => false);
+          } else {
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(newSessionRoute, (route) => false);
+          }
         } else {
           setState(() {
             _errorOccured = true;

@@ -18,3 +18,6 @@ const String handwritingsRoute = '/handwritings';
 const String tipsRoute = '/tips';
 const String previewImageRoute = '/preview';
 const String editorRoute = '/editor';
+const String companyDetailRoute = '/company-detail';
+const String newSessionRoute = '/session';
+const String verifyCodeRoute = '/verify-code';

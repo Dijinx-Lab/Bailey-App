@@ -34,12 +34,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   _checkFilledStatus() {
-    print('eventFired');
-    _fingerprintsFilled = PrefUtil().currentUser?.fingerprintsAdded ?? false;
-    _handwritingsFilled = PrefUtil().currentUser?.handwritingsAdded ?? false;
-    _photosFilled = PrefUtil().currentUser?.photosAdded ?? false;
-    print(_photosFilled);
-    setState(() {});
+    _fingerprintsFilled = PrefUtil().currentSession?.fingerprintsAdded ?? false;
+    _handwritingsFilled = PrefUtil().currentSession?.handwritingsAdded ?? false;
+    _photosFilled = PrefUtil().currentSession?.photosAdded ?? false;
+
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<String?> _openSourceSheet() async {

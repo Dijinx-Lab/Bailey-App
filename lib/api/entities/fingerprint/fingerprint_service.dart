@@ -28,6 +28,7 @@ class FingerprintService {
       params["hand"] = hand;
       params["finger"] = finger;
       params["upload_id"] = uploadId;
+      params["session_id"] = PrefUtil().currentSession?.id;
 
       print(params);
 
@@ -71,6 +72,7 @@ class FingerprintService {
       var params = HashMap();
 
       params["upload_id"] = uploadId;
+      params["session_id"] = PrefUtil().currentSession?.id;
 
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.put(
@@ -102,7 +104,7 @@ class FingerprintService {
 
   Future<BaseResponse> list() async {
     try {
-      var url = ApiKeys.listPrints;
+      var url = "${ApiKeys.listPrints}?id=${PrefUtil().currentSession?.id}";
 
       var response = await http.get(
         Uri.parse(url),
@@ -195,6 +197,37 @@ class FingerprintService {
       }
     } catch (e) {
       return BaseResponse(null, null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> deleteBySession({
+    required String sessionId,
+  }) async {
+    try {
+      var url = "${ApiKeys.deletePrintBySession}?id=$sessionId";
+
+      var response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+
+        return BaseResponse(response.statusCode, userResponse, null);
+      } else {
+        return BaseResponse(response.statusCode, null, response.body);
+      }
+    } catch (e) {
+      return BaseResponse(
+        null,
+        null,
+        e.toString(),
+      );
     }
   }
 }

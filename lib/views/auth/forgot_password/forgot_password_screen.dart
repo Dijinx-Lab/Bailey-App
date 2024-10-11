@@ -1,15 +1,22 @@
+import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
-import 'package:bailey/models/args/change_password/change_password_args.dart';
+import 'package:bailey/models/api/generic/generic_response.dart';
+import 'package:bailey/models/args/code/code_args.dart';
 import 'package:bailey/style/type/type_style.dart';
 import 'package:bailey/utility/misc/misc.dart';
+import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:bailey/widgets/buttons/rounded_button/m_rounded_button.dart';
 import 'package:bailey/widgets/inputs/text_field/m_text_field.dart';
+import 'package:bailey/widgets/loading/custom_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 import 'package:flutter_svg/svg.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({
+    super.key,
+  });
 
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
@@ -17,9 +24,52 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
+  bool valid = false;
+
   @override
   void initState() {
     super.initState();
+    _emailController.addListener(() => _checkValidity());
+  }
+
+  _checkValidity() {
+    valid = _emailController.text != "";
+    setState(() {});
+  }
+
+  _sendVerification() async {
+    try {
+      FocusManager.instance.primaryFocus?.unfocus();
+      SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+
+      ApiService.sendVerificationCode(
+        email: _emailController.text.trim(),
+        type: "password",
+      ).then((value) {
+        SmartDialog.dismiss();
+        GenericResponse? apiResponse =
+            ApiService.processResponse(value, context) as GenericResponse?;
+        if (apiResponse != null) {
+          if (apiResponse.success == true) {
+            Navigator.of(context).pushNamed(
+              verifyCodeRoute,
+              arguments: CodeArgs(
+                email: _emailController.text.trim(),
+                code: null,
+                forPassword: true,
+              ),
+            );
+          } else {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: apiResponse.message ?? "",
+                type: "fail");
+          }
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -93,10 +143,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   width: double.infinity,
                   child: MRoundedButton(
                     'Continue',
-                    () => Navigator.of(context).pushNamed(
-                      changePasswordRoute,
-                      arguments: ChangePasswordArgs(action: 'forgot_pass'),
-                    ),
+                    () => _sendVerification(),
+                    isEnabled: valid,
                   ),
                 ),
                 const SizedBox(height: 10),

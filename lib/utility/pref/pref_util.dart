@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bailey/keys/pref/pref_keys.dart';
+import 'package:bailey/models/api/session/session/session.dart';
 import 'package:bailey/models/api/user/user/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,6 +61,31 @@ class PrefUtil {
     } catch (e) {
       print(e);
       _sharedPreferences!.setString(userDetails, '');
+    }
+  }
+
+  Session? get currentSession {
+    try {
+      String? teamJson = _sharedPreferences!.getString(sessionDetails);
+      if (teamJson == null || teamJson == '') return null;
+
+      return Session.fromJson(json.decode(teamJson));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  set currentSession(Session? value) {
+    try {
+      if (value == null) {
+        _sharedPreferences!.setString(sessionDetails, '');
+      } else {
+        final String teamJson = json.encode(value.toJson());
+
+        _sharedPreferences!.setString(sessionDetails, teamJson);
+      }
+    } catch (e) {
+      _sharedPreferences!.setString(sessionDetails, '');
     }
   }
 

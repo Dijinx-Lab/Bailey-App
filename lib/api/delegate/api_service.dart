@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
+import 'package:bailey/api/entities/commons/commons_service.dart';
 import 'package:bailey/api/entities/fingerprint/fingerprint_service.dart';
 import 'package:bailey/api/entities/handwriting/handwriting_service.dart';
 import 'package:bailey/api/entities/photo/photo_service.dart';
+import 'package:bailey/api/entities/session/session_service.dart';
 import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/api/entities/user/user_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
@@ -91,11 +93,15 @@ class ApiService {
     required String? email,
     required String? name,
     required String? fcmToken,
+    required String? companyName,
+    required String? companyLocation,
   }) =>
       UserService().edit(
         name: name,
         email: email,
         fcmToken: fcmToken,
+        companyName: companyName,
+        companyLocation: companyLocation,
       );
 
   static Future<BaseResponse> changePassword({
@@ -105,6 +111,34 @@ class ApiService {
   }) =>
       UserService().changePassword(
           oldPass: oldPass, newPass: newPass, confirmPass: confirmPass);
+
+  static Future<BaseResponse> forgotPassword({
+    required String email,
+    required String newPass,
+    required String confirmPass,
+  }) =>
+      UserService().forgotPassword(
+          email: email, newPass: newPass, confirmPass: confirmPass);
+
+  static Future<BaseResponse> sendVerificationCode({
+    required String type,
+    required String email,
+  }) =>
+      UserService().sendVerificationCode(
+        type: type,
+        email: email,
+      );
+
+  static Future<BaseResponse> verifyCode({
+    required String type,
+    required String email,
+    required String code,
+  }) =>
+      UserService().verifyCode(
+        type: type,
+        email: email,
+        code: code,
+      );
 
   static Future<BaseResponse> signOut() => UserService().signOut();
 
@@ -116,10 +150,12 @@ class ApiService {
   static Future<BaseResponse> upload({
     required String folder,
     required String filePath,
+    required String fileName,
   }) =>
       UploadService().upload(
         folder: folder,
         filePath: filePath,
+        fileName: fileName,
       );
 
   //PHOTO
@@ -137,6 +173,12 @@ class ApiService {
         photoId: photoId,
       );
 
+  static Future<BaseResponse> deletePhotosBySession(
+          {required String sessionId}) =>
+      PhotoService().deleteBySession(
+        sessionId: sessionId,
+      );
+
   //HANDWRITING
   static Future<BaseResponse> addWriting({
     required String uploadId,
@@ -150,6 +192,12 @@ class ApiService {
   static Future<BaseResponse> deleteWriting({required String writingId}) =>
       HandwritingService().delete(
         writingId: writingId,
+      );
+
+  static Future<BaseResponse> deleteWritingsBySession(
+          {required String sessionId}) =>
+      HandwritingService().deleteBySession(
+        sessionId: sessionId,
       );
 
   //FINGERPRINT
@@ -186,4 +234,34 @@ class ApiService {
       FingerprintService().process(
         fileBytes: fileBytes,
       );
+
+  static Future<BaseResponse> deletePrintsBySession(
+          {required String sessionId}) =>
+      FingerprintService().deleteBySession(
+        sessionId: sessionId,
+      );
+
+  //SESSION
+  static Future<BaseResponse> addSession({
+    required String firstname,
+    required String lastname,
+    required String dateOfBirth,
+  }) =>
+      SessionService().add(
+        firstname: firstname,
+        lastname: lastname,
+        dateOfBirth: dateOfBirth,
+      );
+
+  static Future<BaseResponse> listSessions() => SessionService().list();
+
+  static Future<BaseResponse> deleteSession({
+    required String id,
+  }) =>
+      SessionService().delete(
+        id: id,
+      );
+
+  //COMMONTS
+  static Future<BaseResponse> getTermsLink() => CommonsService().getTermsLink();
 }
