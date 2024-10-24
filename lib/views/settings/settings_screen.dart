@@ -28,6 +28,13 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  late final bool canPop;
+
+  @override
+  initState() {
+    canPop = Navigator.of(context).canPop();
+    super.initState();
+  }
 
   _signOut() async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -93,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await _firebaseMessaging.requestPermission();
       return await _firebaseMessaging.getToken();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return null;
     }
   }
@@ -128,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -153,7 +160,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -171,11 +178,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           if (link != null && await canLaunch(link)) {
             await launch(link); // Open link in browser
           } else {
-            ToastUtils.showCustomSnackbar(
-              context: context,
-              contentText: "Unable to open the link",
-              type: "fail",
-            );
+            if (mounted) {
+              ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: "Unable to open the link",
+                type: "fail",
+              );
+            }
           }
         } else {
           ToastUtils.showCustomSnackbar(
@@ -190,167 +199,198 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 50,
-                width: double.maxFinite,
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Text(
-                        'Settings',
-                        style: TypeStyle.h2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 40),
-              Center(
-                child: SizedBox(
-                  width: (MediaQuery.of(context).size.width / 2),
-                  child: Image.asset(
-                    'assets/images/settings_image.png',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: Text(
-                  'Settings page',
-                  style: TypeStyle.h1,
-                ),
-              ),
-              const SizedBox(height: 30),
-              GestureDetector(
-                onTapDown: (TapDownDetails details) {
-                  _showSessionActions(context, details.globalPosition);
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 15,
-                  ),
-                  decoration: BoxDecoration(
-                      color: ColorStyle.blackColor,
-                      borderRadius: BorderRadius.circular(6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: ColorStyle.whiteColor.withOpacity(0.1),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                        )
-                      ]),
-                  child: Row(
+      body: SafeArea(
+        top: canPop,
+        bottom: canPop,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 50,
+                  width: double.maxFinite,
+                  child: Stack(
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                      canPop
+                          ? Row(
                               children: [
-                                const Icon(
-                                  Icons.location_history_outlined,
-                                  size: 15,
-                                  color: ColorStyle.whiteColor,
+                                IconButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  visualDensity: VisualDensity.compact,
+                                  icon: SvgPicture.asset(
+                                      'assets/icons/ic_chevron_back.svg'),
                                 ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  "${PrefUtil().currentSession?.firstName} ${PrefUtil().currentSession?.lastName}",
-                                  style: TypeStyle.h3,
+                                Expanded(
+                                  child: Center(
+                                    child: Text(
+                                      'Settings',
+                                      style: TypeStyle.h2,
+                                    ),
+                                  ),
                                 ),
+                                const SizedBox(
+                                  width: 40,
+                                )
                               ],
+                            )
+                          : Center(
+                              child: Text(
+                                'Settings',
+                                style: TypeStyle.h2,
+                              ),
                             ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.date_range,
-                                  size: 15,
-                                  color: ColorStyle.secondaryTextColor,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  DateFormat('dd MMM, yyyy').format(
-                                      PrefUtil().currentSession!.dateOfBirth!),
-                                  style: TypeStyle.body,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.more_vert,
-                      )
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-              _buildTileWidget('Profile', 'Edit Profile', 'ic_mail', () {
-                Navigator.of(context).pushNamed(
-                  changePasswordRoute,
-                  arguments: ChangePasswordArgs(action: 'change_profile'),
-                );
-              }),
-              Visibility(
-                visible: PrefUtil().currentUser?.googleId == null &&
-                    PrefUtil().currentUser?.appleId == null,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20),
-                    _buildTileWidget('Password', 'Change Password', 'ic_lock',
-                        () {
-                      Navigator.of(context).pushNamed(
-                        changePasswordRoute,
-                        arguments: ChangePasswordArgs(action: 'change_pass'),
-                      );
-                    }),
-                  ],
+                const SizedBox(height: 40),
+                Center(
+                  child: SizedBox(
+                    width: (MediaQuery.of(context).size.width / 2),
+                    child: Image.asset(
+                      'assets/images/settings_image.png',
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              _buildTileWidget(
-                  'Notifications', 'Enable Notifications', 'ic_bell', () {
-                _editProfile(
-                    !(PrefUtil().currentUser?.notificationsEnabled ?? false));
-              },
-                  switchState:
-                      (PrefUtil().currentUser?.notificationsEnabled ?? false)),
-              const SizedBox(height: 20),
-              _buildTileWidget('Legal', 'Terms and Conditions ', 'ic_logout',
-                  () => _getTermsLink()),
-              const SizedBox(height: 20),
-              _buildTileWidget(
-                  'Exit', 'Log Out ', 'ic_logout', () => _signOut()),
-              const SizedBox(height: 20),
-              _buildTileWidget('Delete', 'Delete Account ', 'ic_remove',
-                  () async {
-                OkCancelResult result = await showOkCancelAlertDialog(
-                  context: context,
-                  title: "Confirm",
-                  message:
-                      "This action is irreversible and all your data will be permanently deleted including\n\n• Your photos\n• Your handwritings\n• Your fingerprints",
-                  isDestructiveAction: true,
-                  okLabel: 'Delete',
-                );
-                if (result == OkCancelResult.ok) {
-                  _deleteAccount();
-                } else {
-                  return;
-                }
-              }),
-              const SizedBox(height: 60),
-            ],
+                const SizedBox(height: 30),
+                Center(
+                  child: Text(
+                    'Settings page',
+                    style: TypeStyle.h1,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                canPop
+                    ? Container()
+                    : GestureDetector(
+                        onTapDown: (TapDownDetails details) {
+                          _showSessionActions(context, details.globalPosition);
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 15,
+                          ),
+                          decoration: BoxDecoration(
+                              color: ColorStyle.blackColor,
+                              borderRadius: BorderRadius.circular(6),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: ColorStyle.whiteColor.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                )
+                              ]),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.location_history_outlined,
+                                          size: 15,
+                                          color: ColorStyle.whiteColor,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          "${PrefUtil().currentSession?.firstName} ${PrefUtil().currentSession?.lastName}",
+                                          style: TypeStyle.h3,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.date_range,
+                                          size: 15,
+                                          color: ColorStyle.secondaryTextColor,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          DateFormat('dd MMM, yyyy').format(
+                                              PrefUtil()
+                                                  .currentSession!
+                                                  .dateOfBirth!),
+                                          style: TypeStyle.body,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                Icons.more_vert,
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                const SizedBox(height: 10),
+                _buildTileWidget('Profile', 'Edit Profile', 'ic_mail', () {
+                  Navigator.of(context).pushNamed(
+                    changePasswordRoute,
+                    arguments: ChangePasswordArgs(action: 'change_profile'),
+                  );
+                }),
+                Visibility(
+                  visible: PrefUtil().currentUser?.googleId == null &&
+                      PrefUtil().currentUser?.appleId == null,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildTileWidget('Password', 'Change Password', 'ic_lock',
+                          () {
+                        Navigator.of(context).pushNamed(
+                          changePasswordRoute,
+                          arguments: ChangePasswordArgs(action: 'change_pass'),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _buildTileWidget(
+                    'Notifications', 'Enable Notifications', 'ic_bell', () {
+                  _editProfile(
+                      !(PrefUtil().currentUser?.notificationsEnabled ?? false));
+                },
+                    switchState:
+                        (PrefUtil().currentUser?.notificationsEnabled ??
+                            false)),
+                const SizedBox(height: 20),
+                _buildTileWidget('Legal', 'Terms and Conditions ', 'ic_logout',
+                    () => _getTermsLink()),
+                const SizedBox(height: 20),
+                _buildTileWidget(
+                    'Exit', 'Log Out ', 'ic_logout', () => _signOut()),
+                const SizedBox(height: 20),
+                _buildTileWidget('Delete', 'Delete Account ', 'ic_remove',
+                    () async {
+                  OkCancelResult result = await showOkCancelAlertDialog(
+                    context: context,
+                    title: "Confirm",
+                    message:
+                        "This action is irreversible and all your data will be permanently deleted including\n\n• Your photos\n• Your handwritings\n• Your fingerprints",
+                    isDestructiveAction: true,
+                    okLabel: 'Delete',
+                  );
+                  if (result == OkCancelResult.ok) {
+                    _deleteAccount();
+                  } else {
+                    return;
+                  }
+                }),
+                const SizedBox(height: 60),
+              ],
+            ),
           ),
         ),
       ),

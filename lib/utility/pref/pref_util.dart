@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:bailey/keys/pref/pref_keys.dart';
 import 'package:bailey/models/api/session/session/session.dart';
 import 'package:bailey/models/api/user/user/user.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PrefUtil {
@@ -55,11 +56,10 @@ class PrefUtil {
         _sharedPreferences!.setString(userDetails, '');
       } else {
         final String teamJson = json.encode(value.toJson());
-        print(teamJson);
         _sharedPreferences!.setString(userDetails, teamJson);
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       _sharedPreferences!.setString(userDetails, '');
     }
   }

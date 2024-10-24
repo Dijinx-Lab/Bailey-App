@@ -68,7 +68,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

@@ -2,9 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:bailey/api/delegate/api_service.dart';
-import 'package:bailey/keys/routes/route_keys.dart';
 import 'package:bailey/models/api/fingerprint/processing_response/fingerprint_processing_response.dart';
-import 'package:bailey/models/args/editor/editor_args/editor_args.dart';
 import 'package:bailey/models/args/process_print/process_print_args.dart';
 import 'package:bailey/style/color/color_style.dart';
 import 'package:bailey/style/type/type_style.dart';
@@ -47,11 +45,11 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       setState(() {
         _isLoadingBgRemoval = true;
       });
-      print(imagePath);
+
       if (imagePath == "") {
         imagePath = await convertUint8ListToFile(imageBytes!);
       }
-      print(imagePath);
+
       LocalRembgResultModel localRembgResultModel =
           await LocalRembg.removeBackground(
         imagePath: imagePath,
@@ -72,7 +70,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
     } catch (e) {
       // ToastUtils.showCustomSnackbar(
       //     context: context, contentText: e.toString(), type: "fail");
-      print(e);
+      debugPrint(e.toString());
     }
     setState(() {
       _isLoadingBgRemoval = false;
@@ -155,7 +153,7 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
       await file.writeAsBytes(data);
       return file.path;
     } catch (e) {
-      print('Error writing to file: $e');
+      debugPrint('Error writing to file: $e');
       rethrow;
     }
   }
@@ -185,46 +183,46 @@ class _ProcessPrintScreenState extends State<ProcessPrintScreen> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      Uint8List bytes =
-                          imageBytes ?? await File(imagePath).readAsBytes();
-  
-                      Navigator.of(context)
-                          .pushNamed(editorRoute,
-                              arguments: EditorArgs(imageData: bytes))
-                          .then((res) {
-                        Uint8List? editedImage = res as Uint8List?;
-                        if (editedImage != null) {
-                          imagePath = "";
-                          imageBytes = editedImage;
-                          setState(() {});
-                        }
-                      });
+                  // IconButton(
+                  //   onPressed: () async {
+                  //     Uint8List bytes =
+                  //         imageBytes ?? await File(imagePath).readAsBytes();
 
-                      // if (editedImage != null) {
-                      //   imagePath = "";
-                      //   imageBytes = editedImage;
-                      //   setState(() {});
-                      // }
-                      // String filePath =
-                      //     await convertUint8ListToFile(imageBytes!);
-                      // CroppedFile? xfile =
-                      //     await PickerUtil.crop(filePath: filePath);
-                      // print(xfile?.path);
-                      // if (xfile != null) {
-                      //   imagePath = xfile.path;
-                      //   imageBytes = null;
-                      //   setState(() {});
-                      // }
-                    },
-                    visualDensity: VisualDensity.compact,
-                    icon: const Icon(
-                      Icons.edit_note_sharp,
-                      color: ColorStyle.whiteColor,
-                      size: 30,
-                    ),
-                  ),
+                  //     Navigator.of(context)
+                  //         .pushNamed(editorRoute,
+                  //             arguments: EditorArgs(imageData: bytes))
+                  //         .then((res) {
+                  //       Uint8List? editedImage = res as Uint8List?;
+                  //       if (editedImage != null) {
+                  //         imagePath = "";
+                  //         imageBytes = editedImage;
+                  //         setState(() {});
+                  //       }
+                  //     });
+
+                  //     // if (editedImage != null) {
+                  //     //   imagePath = "";
+                  //     //   imageBytes = editedImage;
+                  //     //   setState(() {});
+                  //     // }
+                  //     // String filePath =
+                  //     //     await convertUint8ListToFile(imageBytes!);
+                  //     // CroppedFile? xfile =
+                  //     //     await PickerUtil.crop(filePath: filePath);
+                  //     // print(xfile?.path);
+                  //     // if (xfile != null) {
+                  //     //   imagePath = xfile.path;
+                  //     //   imageBytes = null;
+                  //     //   setState(() {});
+                  //     // }
+                  //   },
+                  //   visualDensity: VisualDensity.compact,
+                  //   icon: const Icon(
+                  //     Icons.edit_note_sharp,
+                  //     color: ColorStyle.whiteColor,
+                  //     size: 30,
+                  //   ),
+                  // ),
                 ]),
                 Expanded(
                   child: Container(

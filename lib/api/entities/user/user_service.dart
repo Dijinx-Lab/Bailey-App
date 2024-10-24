@@ -208,7 +208,7 @@ class UserService {
       );
 
       var responseBody = json.decode(response.body);
-      print(responseBody);
+
       if (response.statusCode == 200) {
         UserResponse userResponse = UserResponse.fromJson(responseBody);
         return BaseResponse(response.statusCode, userResponse, null);

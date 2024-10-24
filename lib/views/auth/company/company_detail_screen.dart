@@ -71,7 +71,7 @@ class _CompanyDetailScreenState extends State<CompanyDetailScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

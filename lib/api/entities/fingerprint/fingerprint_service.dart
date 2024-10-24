@@ -22,15 +22,12 @@ class FingerprintService {
   }) async {
     try {
       var url = ApiKeys.addPrint;
-      print(url);
 
       var params = HashMap();
       params["hand"] = hand;
       params["finger"] = finger;
       params["upload_id"] = uploadId;
       params["session_id"] = PrefUtil().currentSession?.id;
-
-      print(params);
 
       params.removeWhere((key, value) => value == null || value == '');
       var response = await http.post(
@@ -41,8 +38,6 @@ class FingerprintService {
           "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
         },
       );
-
-      print(response.body);
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
@@ -144,7 +139,6 @@ class FingerprintService {
         },
       );
 
-      print(url);
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);

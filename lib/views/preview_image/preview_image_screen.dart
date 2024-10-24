@@ -24,13 +24,12 @@ class PreviewImageScreen extends StatefulWidget {
 
 class _PreviewImageScreenState extends State<PreviewImageScreen> {
   late List<String> _images;
-  late List<String> _titles;
   late PageController _pageController;
   late int currentPageNumber;
   @override
   void initState() {
     _images = widget.arguments.imageUrls;
-    _titles = widget.arguments.titles;
+    _images.removeWhere((e) => e == "" || e == "skip");
     _pageController =
         PageController(initialPage: widget.arguments.initialIndex);
     currentPageNumber = widget.arguments.initialIndex + 1;
@@ -51,10 +50,12 @@ class _PreviewImageScreenState extends State<PreviewImageScreen> {
           await file.writeAsBytes(response.bodyBytes);
           await Share.shareFiles([filePath]);
         } else {
-          ToastUtils.showCustomSnackbar(
-              context: context,
-              contentText: "Failed to download image, please try again later",
-              type: "fail");
+          if (mounted) {
+            ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: "Failed to download image, please try again later",
+                type: "fail");
+          }
         }
         SmartDialog.dismiss();
       } else {
@@ -62,10 +63,12 @@ class _PreviewImageScreenState extends State<PreviewImageScreen> {
       }
     } catch (e) {
       SmartDialog.dismiss();
-      ToastUtils.showCustomSnackbar(
-          context: context,
-          contentText: "Failed to download image, please try again later",
-          type: "fail");
+      if (mounted) {
+        ToastUtils.showCustomSnackbar(
+            context: context,
+            contentText: "Failed to download image, please try again later",
+            type: "fail");
+      }
     }
   }
 
@@ -112,7 +115,8 @@ class _PreviewImageScreenState extends State<PreviewImageScreen> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                 margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),

@@ -58,7 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await _firebaseMessaging.requestPermission();
       return await _firebaseMessaging.getToken();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return null;
     }
   }
@@ -117,11 +117,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (link != null && await canLaunch(link)) {
             await launch(link); // Open link in browser
           } else {
-            ToastUtils.showCustomSnackbar(
-              context: context,
-              contentText: "Unable to open the link",
-              type: "fail",
-            );
+            if (mounted) {
+              ToastUtils.showCustomSnackbar(
+                context: context,
+                contentText: "Unable to open the link",
+                type: "fail",
+              );
+            }
           }
         } else {
           ToastUtils.showCustomSnackbar(

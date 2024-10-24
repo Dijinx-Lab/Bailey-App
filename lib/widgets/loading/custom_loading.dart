@@ -11,10 +11,10 @@ class CustomLoading extends StatefulWidget {
   final int type;
 
   @override
-  _CustomLoadingState createState() => _CustomLoadingState();
+  State<CustomLoading> createState() => CustomLoadingState();
 }
 
-class _CustomLoadingState extends State<CustomLoading>
+class CustomLoadingState extends State<CustomLoading>
     with TickerProviderStateMixin {
   late AnimationController _controller;
 

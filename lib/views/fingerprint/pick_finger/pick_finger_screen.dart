@@ -91,10 +91,12 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
         }
       }
     } catch (e) {
-      ToastUtils.showCustomSnackbar(
-          context: context,
-          contentText: "An error occurred during upload",
-          type: "fail");
+      if (mounted) {
+        ToastUtils.showCustomSnackbar(
+            context: context,
+            contentText: "An error occurred during upload",
+            type: "fail");
+      }
     }
     return null;
   }

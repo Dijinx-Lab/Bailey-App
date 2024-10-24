@@ -32,7 +32,6 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
   @override
   void initState() {
     super.initState();
-
     _firstNameController.addListener(() => _checkValidity());
     _lastNameController.addListener(() => _checkValidity());
     _dateOfBirthController.addListener(() => _checkValidity());
@@ -47,7 +46,6 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
   }
 
   _openSessionHistorySheet() async {
-    print('tapped');
     bool? res = await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -96,7 +94,7 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -113,6 +111,9 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
                 const SizedBox(height: 20),
                 Row(
                   children: [
+                    const SizedBox(
+                      width: 40,
+                    ),
                     Expanded(
                       child: Center(
                         child: Text(
@@ -121,6 +122,16 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
                         ),
                       ),
                     ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(settingsRoute);
+                      },
+                      icon: SvgPicture.asset(
+                        'assets/icons/ic_settings.svg',
+                        color: ColorStyle.whiteColor,
+                        height: 25,
+                      ),
+                    )
                   ],
                 ),
                 const SizedBox(

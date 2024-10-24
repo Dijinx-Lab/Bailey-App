@@ -48,7 +48,7 @@ class _SessionHistorySheetState extends State<SessionHistorySheet> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

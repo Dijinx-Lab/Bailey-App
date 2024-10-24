@@ -50,7 +50,7 @@ class _SignInScreenState extends State<SignInScreen> {
       await _firebaseMessaging.requestPermission();
       return await _firebaseMessaging.getToken();
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return null;
     }
   }
@@ -98,7 +98,7 @@ class _SignInScreenState extends State<SignInScreen> {
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -189,8 +189,14 @@ class _SignInScreenState extends State<SignInScreen> {
               PrefUtil().isLoggedIn = true;
               PrefUtil().rememberMe = true;
               PrefUtil().currentUser = apiResponse.data?.user;
-              Navigator.of(context)
-                  .pushNamedAndRemoveUntil(baseRoute, (route) => false);
+              if (PrefUtil().currentUser?.companyName == null ||
+                  PrefUtil().currentUser?.companyName == "") {
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    companyDetailRoute, (route) => false);
+              } else {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil(newSessionRoute, (route) => false);
+              }
             } else {
               ToastUtils.showCustomSnackbar(
                   context: context,

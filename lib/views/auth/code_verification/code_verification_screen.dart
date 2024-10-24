@@ -112,7 +112,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen>
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -151,7 +151,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen>
         }
       });
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 

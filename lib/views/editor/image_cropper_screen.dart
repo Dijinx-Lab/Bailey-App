@@ -60,7 +60,9 @@ class _ImageCropperScreenState extends State<ImageCropperScreen> {
         onBack: () => Navigator.of(context).pop(),
         onOk: () async {
           var croppedData = await _controller.crop();
-          Navigator.of(context).pop(croppedData);
+          if (context.mounted) {
+            Navigator.of(context).pop(croppedData);
+          }
         },
         aspectRatio: _aspectRatio,
         onAspectRatio: (value) {

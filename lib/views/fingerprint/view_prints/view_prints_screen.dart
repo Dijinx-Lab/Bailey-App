@@ -203,7 +203,6 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
       SmartDialog.dismiss();
       _getPrints();
     } catch (e) {
-      print(e);
       SmartDialog.dismiss();
       _getPrints();
     }
@@ -226,7 +225,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         }
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return null;
   }
@@ -245,7 +244,6 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
             : await _makeUpload(rightHandPrints[index]?.changeKey ?? "", false,
                 rightHandPrints[index]!.finger!);
       }
-      print(uploadId);
 
       if (uploadId == null) return null;
       var value = await ApiService.addPrint(
@@ -268,8 +266,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         }
       }
     } catch (e) {
-      print("finger ${rightHandPrints[index]?.finger}");
-      print(e);
+      debugPrint(e.toString());
     }
     return null;
   }
@@ -309,7 +306,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         }
       }
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
     return null;
   }
@@ -333,7 +330,6 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         if (apiResponse != null) {
           if (apiResponse.success == true) {
             String uploadId = apiResponse.data?.upload?.id ?? "";
-            print(uploadId);
             return uploadId;
           } else {
             ToastUtils.showCustomSnackbar(
@@ -344,10 +340,12 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         }
       }
     } catch (e) {
-      ToastUtils.showCustomSnackbar(
-          context: context,
-          contentText: "An error occurred during upload",
-          type: "fail");
+      if (mounted) {
+        ToastUtils.showCustomSnackbar(
+            context: context,
+            contentText: "An error occurred during upload",
+            type: "fail");
+      }
     }
     return null;
   }
@@ -664,9 +662,11 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
 
   bool _isNull(int index, bool leftHand) {
     if (leftHand) {
-      return leftHandPrints[index]?.changeKey == null;
+      return leftHandPrints[index]?.changeKey == null ||
+          leftHandPrints[index]?.changeKey == "";
     } else {
-      return rightHandPrints[index]?.changeKey == null;
+      return rightHandPrints[index]?.changeKey == null ||
+          leftHandPrints[index]?.changeKey == "";
     }
   }
 
@@ -682,7 +682,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
     return GestureDetector(
       onLongPress: () {
         if (leftHand) {
-          if (leftHandPrints[index]?.changeKey == null) {
+          if (_isNull(index, leftHand)) {
             leftHandPrints[index]?.changeKey = 'skip';
             leftHandPrints[index]?.isSkipped = true;
           } else {
@@ -690,7 +690,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
             leftHandPrints[index]?.isSkipped = false;
           }
         } else {
-          if (rightHandPrints[index]?.changeKey == null) {
+          if (_isNull(index, leftHand)) {
             rightHandPrints[index]?.changeKey = 'skip';
             leftHandPrints[index]?.isSkipped = true;
           } else {
@@ -764,8 +764,10 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                   onTap: () {
                     if (leftHand) {
                       leftHandPrints[index]?.changeKey = null;
+                      leftHandPrints[index]?.isSkipped = false;
                     } else {
                       rightHandPrints[index]?.changeKey = null;
+                      rightHandPrints[index]?.isSkipped = false;
                     }
                     _canEdit();
                   },

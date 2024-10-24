@@ -100,7 +100,6 @@ class AuthUtil {
           await user.delete();
           return true;
         } catch (e) {
-          print('Failed to delete user: $e');
           return false;
         }
       }

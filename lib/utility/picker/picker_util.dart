@@ -23,7 +23,7 @@ class PickerUtil {
         return "";
       }
     } catch (e) {
-      print('Error converting image to base64: $e');
+      debugPrint('Error converting image to base64: $e');
       return "";
     }
   }
@@ -37,7 +37,7 @@ class PickerUtil {
         return "";
       }
     } catch (e) {
-      print('Error converting image to base64: $e');
+      debugPrint('Error converting image to base64: $e');
       return "";
     }
   }
@@ -143,7 +143,7 @@ class PickerUtil {
       double fileSizeInMB = fileSizeInBytes / (1024 * 1024);
       return fileSizeInMB < maxSizeInMB;
     } catch (e) {
-      print("Error checking file size: $e");
+      debugPrint("Error checking file size: $e");
       return false;
     }
   }

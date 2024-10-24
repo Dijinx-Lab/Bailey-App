@@ -237,12 +237,13 @@ class _HandwritingScreenState extends State<HandwritingScreen> {
                       _makeUpload(imagePaths.first);
                     }
                   } else {
-                    if (!mounted) return;
-                    ToastUtils.showCustomSnackbar(
-                        context: context,
-                        contentText:
-                            'Please grant this app camera permissions from your settings',
-                        type: 'error');
+                    if (context.mounted) {
+                      ToastUtils.showCustomSnackbar(
+                          context: context,
+                          contentText:
+                              'Please grant this app camera permissions from your settings',
+                          type: 'error');
+                    }
                   }
                 },
                 shape: const CircleBorder(),
