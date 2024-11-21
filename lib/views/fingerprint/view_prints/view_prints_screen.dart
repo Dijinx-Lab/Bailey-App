@@ -680,27 +680,6 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
 
   _buildTileWidget(int index, String title, Function onTap, bool leftHand) {
     return GestureDetector(
-      onLongPress: () {
-        if (leftHand) {
-          if (_isNull(index, leftHand)) {
-            leftHandPrints[index]?.changeKey = 'skip';
-            leftHandPrints[index]?.isSkipped = true;
-          } else {
-            leftHandPrints[index]?.changeKey = null;
-            leftHandPrints[index]?.isSkipped = false;
-          }
-        } else {
-          if (_isNull(index, leftHand)) {
-            rightHandPrints[index]?.changeKey = 'skip';
-            leftHandPrints[index]?.isSkipped = true;
-          } else {
-            rightHandPrints[index]?.changeKey = null;
-            leftHandPrints[index]?.isSkipped = false;
-          }
-        }
-
-        _canEdit();
-      },
       onTap: () => onTap(),
       child: Container(
         width: double.maxFinite,
@@ -711,6 +690,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
         ),
         child: IntrinsicHeight(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               (!_isNull(index, leftHand) && !_isSkipped(index, leftHand))
                   ? MPicture(
@@ -732,6 +712,7 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text("${leftHand ? 'Left' : 'Right'} Hand",
                         style: TypeStyle.label),
@@ -739,6 +720,35 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                   ],
                 ),
               ),
+              _isNull(index, leftHand)
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: TextButton(
+                        onPressed: () {
+                          if (leftHand) {
+                            if (_isNull(index, leftHand)) {
+                              leftHandPrints[index]?.changeKey = 'skip';
+                              leftHandPrints[index]?.isSkipped = true;
+                            } else {
+                              leftHandPrints[index]?.changeKey = null;
+                              leftHandPrints[index]?.isSkipped = false;
+                            }
+                          } else {
+                            if (_isNull(index, leftHand)) {
+                              rightHandPrints[index]?.changeKey = 'skip';
+                              rightHandPrints[index]?.isSkipped = true;
+                            } else {
+                              rightHandPrints[index]?.changeKey = null;
+                              rightHandPrints[index]?.isSkipped = false;
+                            }
+                          }
+
+                          _canEdit();
+                        },
+                        child: Text('Skip', style: TypeStyle.h3),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               _isNull(index, leftHand)
                   ? SvgPicture.asset(
                       'assets/icons/ic_fingerprint.svg',
@@ -760,8 +770,10 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                         ),
               Visibility(
                 visible: !_isNull(index, leftHand),
-                child: GestureDetector(
-                  onTap: () {
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: SvgPicture.asset('assets/icons/ic_cancel.svg'),
+                  onPressed: () {
                     if (leftHand) {
                       leftHandPrints[index]?.changeKey = null;
                       leftHandPrints[index]?.isSkipped = false;
@@ -771,10 +783,6 @@ class _ViewPrintsScreenState extends State<ViewPrintsScreen>
                     }
                     _canEdit();
                   },
-                  child: SizedBox(
-                    width: 30,
-                    child: SvgPicture.asset('assets/icons/ic_cancel.svg'),
-                  ),
                 ),
               )
             ],

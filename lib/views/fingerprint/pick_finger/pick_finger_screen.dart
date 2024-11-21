@@ -342,16 +342,6 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
 
   _buildTileWidget(int index, String title, Function onTap, bool filled) {
     return GestureDetector(
-      onLongPress: () {
-        if (widget.arguments.mode == 'gallery') {
-          if (printFiles[index] == 'skip') {
-            printFiles[index] = null;
-          } else {
-            printFiles[index] = 'skip';
-          }
-          _checkValidity();
-        }
-      },
       onTap: () => onTap(),
       child: Container(
         width: double.maxFinite,
@@ -362,6 +352,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
         ),
         child: IntrinsicHeight(
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               printFiles[index] != null && printFiles[index] != 'skip'
                   ? SizedBox(
@@ -385,6 +376,7 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("$handName Hand", style: TypeStyle.label),
@@ -392,6 +384,24 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                   ],
                 ),
               ),
+              printFiles[index] == null
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: TextButton(
+                        onPressed: () {
+                          // if (widget.arguments.mode == 'gallery') {
+                          if (printFiles[index] == 'skip') {
+                            printFiles[index] = null;
+                          } else {
+                            printFiles[index] = 'skip';
+                          }
+                          _checkValidity();
+                          // }
+                        },
+                        child: Text('Skip', style: TypeStyle.h3),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               printFiles[index] == null
                   ? SvgPicture.asset(
                       widget.arguments.mode == 'gallery'
@@ -443,15 +453,13 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                         ),
               Visibility(
                 visible: printFiles[index] != null,
-                child: GestureDetector(
-                  onTap: () {
+                child: IconButton(
+                  visualDensity: VisualDensity.compact,
+                  icon: SvgPicture.asset('assets/icons/ic_cancel.svg'),
+                  onPressed: () {
                     printFiles[index] = null;
                     _checkValidity();
                   },
-                  child: SizedBox(
-                    width: 30,
-                    child: SvgPicture.asset('assets/icons/ic_cancel.svg'),
-                  ),
                 ),
               )
             ],
