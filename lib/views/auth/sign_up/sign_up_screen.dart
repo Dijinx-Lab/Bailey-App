@@ -247,7 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _checkValidity();
                             },
                           ),
-                          Expanded(
+                          Flexible(
                             child: GestureDetector(
                               onTap: () => _getTermsLink(),
                               child: Text.rich(

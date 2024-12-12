@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:bailey/utility/toast/toast_utils.dart';
 import 'package:flutter/material.dart';
-// import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
