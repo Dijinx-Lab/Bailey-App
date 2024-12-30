@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
@@ -17,6 +20,8 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -167,7 +172,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   _getTermsLink() async {
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
-
     ApiService.getTermsLink().then((value) async {
       SmartDialog.dismiss();
       LinkResponse? apiResponse =
@@ -192,6 +196,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
               contentText: apiResponse.message ?? "",
               type: "fail");
         }
+      }
+    });
+  }
+
+  _getMyData() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(builder: (_) => const CustomLoading(type: 1));
+    ApiService.userCompleteDetail().then((value) async {
+      SmartDialog.dismiss();
+      Map<String, dynamic>? apiResponse =
+          ApiService.processResponse(value, context) as Map<String, dynamic>?;
+      if (apiResponse != null) {
+        Directory tempDir = await getTemporaryDirectory();
+        String filePath = '${tempDir.path}/my-data.json';
+        String formattedJson =
+            const JsonEncoder.withIndent('  ').convert(apiResponse);
+        File file = File(filePath);
+        await file.writeAsString(formattedJson);
+        await Share.shareFiles([filePath]);
       }
     });
   }
@@ -369,6 +392,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _buildTileWidget('Legal', 'Terms and Conditions ', 'ic_logout',
                     () => _getTermsLink()),
                 const SizedBox(height: 20),
+                _buildTileWidget('Data', 'Request My Data', 'ic_download',
+                    () => _getMyData()),
+                const SizedBox(height: 20),
                 _buildTileWidget(
                     'Exit', 'Log Out ', 'ic_logout', () => _signOut()),
                 const SizedBox(height: 20),
@@ -492,7 +518,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            (icon == 'ic_logout' || icon == 'ic_remove')
+            (icon == 'ic_logout' ||
+                    icon == 'ic_remove' ||
+                    icon == 'ic_download')
                 ? Container()
                 : switchState == null
                     ? Transform.flip(

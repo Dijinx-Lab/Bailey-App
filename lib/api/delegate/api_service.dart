@@ -146,6 +146,9 @@ class ApiService {
 
   static Future<BaseResponse> deleteAccount() => UserService().delete();
 
+  static Future<BaseResponse> userCompleteDetail() =>
+      UserService().completeDetail();
+
   //UPLOAD
   static Future<BaseResponse> upload({
     required String folder,

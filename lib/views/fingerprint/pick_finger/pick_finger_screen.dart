@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:bailey/api/delegate/api_service.dart';
 import 'package:bailey/api/entities/upload/upload_service.dart';
 import 'package:bailey/keys/routes/route_keys.dart';
@@ -307,6 +308,10 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: _buildTileWidget(
                                     index, fingerNames[index], () async {
+                                  if (widget.arguments.mode != 'gallery') {
+                                    await _showFocusMessage();
+                                  }
+
                                   if (printFiles[index] == null) {
                                     _openSource(
                                         widget.arguments.mode == 'gallery',
@@ -467,5 +472,21 @@ class _PickFingerScreenState extends State<PickFingerScreen> {
         ),
       ),
     );
+  }
+
+  _showFocusMessage() async {
+    if (!PrefUtil().showFocusTips) return;
+    OkCancelResult result = await showOkCancelAlertDialog(
+      context: context,
+      fullyCapitalizedForMaterial: false,
+      message:
+          "Notification from other apps might interfere with the focus and scanning capabilities on some devices. If this issue occurs please turn off your notification and try again.",
+      okLabel: "Continue",
+      cancelLabel: "Don't show again",
+    );
+
+    if (result == OkCancelResult.cancel) {
+      PrefUtil().showFocusTips = false;
+    }
   }
 }

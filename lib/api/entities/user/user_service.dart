@@ -181,6 +181,33 @@ class UserService {
     }
   }
 
+  Future<BaseResponse> completeDetail() async {
+    try {
+      var url = ApiKeys.completeDetails;
+
+      var response = await http.get(
+        Uri.parse(url),
+        headers: {
+          "content-type": "application/json",
+          "Authorization": "Bearer ${PrefUtil().currentUser?.token ?? ''}",
+        },
+      );
+
+      var responseBody = json.decode(response.body);
+      if (response.statusCode == 200) {
+        return BaseResponse(
+            response.statusCode, responseBody["data"]["user_data"], null);
+      } else if (response.statusCode != 500) {
+        GenericResponse userResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(response.statusCode, null, userResponse.message);
+      } else {
+        return BaseResponse(response.statusCode, null, responseBody);
+      }
+    } catch (e) {
+      return BaseResponse(null, null, e.toString());
+    }
+  }
+
   Future<BaseResponse> edit({
     required String? email,
     required String? name,

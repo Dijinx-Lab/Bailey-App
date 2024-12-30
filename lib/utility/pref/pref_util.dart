@@ -95,4 +95,10 @@ class PrefUtil {
   set showFingerprintTips(bool value) {
     _sharedPreferences!.setBool(showProcessingTips, value);
   }
+
+  bool get showFocusTips => _sharedPreferences!.getBool(showFocusTip) ?? true;
+
+  set showFocusTips(bool value) {
+    _sharedPreferences!.setBool(showFocusTip, value);
+  }
 }

@@ -16,6 +16,7 @@ class ApiKeys {
   static const editProfile = "$baseUrl/user/edit-profile";
   static const changePassword = "$baseUrl/user/change-password";
   static const deleteAccount = "$baseUrl/user/delete";
+  static const completeDetails = "$baseUrl/user/complete-data";
 
   //UPLOAD
   static const upload = "$baseUrl/uploads/add";
