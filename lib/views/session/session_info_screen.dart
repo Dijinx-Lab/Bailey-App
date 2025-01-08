@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SessionInfoScreen extends StatefulWidget {
   const SessionInfoScreen({super.key});
@@ -28,6 +29,7 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
   final TextEditingController _dateOfBirthController = TextEditingController();
   DateTime? dateOfBirth;
   bool isValid = false;
+  bool _agreeToTerms = false;
 
   @override
   void initState() {
@@ -38,7 +40,8 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
   }
 
   _checkValidity() {
-    isValid = _firstNameController.text != "" &&
+    isValid = _agreeToTerms &&
+        _firstNameController.text != "" &&
         _lastNameController.text != "" &&
         dateOfBirth != null;
 
@@ -74,6 +77,7 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
         dateOfBirth: dateOfBirth!.toIso8601String(),
       ).then((value) {
         SmartDialog.dismiss();
+
         SessionResponse? apiResponse =
             ApiService.processResponse(value, context) as SessionResponse?;
         if (apiResponse != null) {
@@ -222,6 +226,46 @@ class _SessionInfoScreenState extends State<SessionInfoScreen> {
                               ),
                             ),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Checkbox(
+                              value: _agreeToTerms,
+                              visualDensity: VisualDensity.compact,
+                              onChanged: (val) {
+                                _agreeToTerms = !_agreeToTerms;
+                                _checkValidity();
+                              },
+                            ),
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  const link =
+                                      "https://www.baileyandbailey.com/privacy-policy.aspx";
+                                  if (await canLaunch(link)) {
+                                    await launch(link); // Open link in browser
+                                  }
+                                },
+                                child: Text.rich(
+                                  style: TypeStyle.body,
+                                  TextSpan(
+                                    text:
+                                        "By continuing you agree to the \"Biometric Data Collection\" under our  ",
+                                    children: [
+                                      TextSpan(
+                                        text: 'Privacy Policy',
+                                        style: TypeStyle.info.copyWith(
+                                            decoration:
+                                                TextDecoration.underline),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 20),
                         IntrinsicHeight(

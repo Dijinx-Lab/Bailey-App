@@ -58,6 +58,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           PrefUtil().isLoggedIn = false;
           PrefUtil().rememberMe = false;
           PrefUtil().currentUser = null;
+          PrefUtil().showFingerprintTips = true;
+          PrefUtil().showFocusTips = true;
 
           Navigator.of(context)
               .pushNamedAndRemoveUntil(signinRoute, (route) => false);
@@ -87,6 +89,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           PrefUtil().isLoggedIn = false;
           PrefUtil().rememberMe = false;
           PrefUtil().currentUser = null;
+          PrefUtil().showFingerprintTips = true;
+          PrefUtil().showFocusTips = true;
 
           Navigator.of(context)
               .pushNamedAndRemoveUntil(signinRoute, (route) => false);
